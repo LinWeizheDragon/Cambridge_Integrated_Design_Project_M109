@@ -18,7 +18,7 @@ Node* down=NULL;
 class Direction{
 public:
 int direction = UP;
-void setDirection(int x);
+void updateDirection(int x);//-1 to turn left, 1 to turn right
 int getDirection();
 }
 ```
@@ -32,8 +32,8 @@ Node* current_node;
 ### find route
 ```
 #define GO_STRAIGHT 0
-#define TURN_LEFT 1
-#define TURN_RIGHT 2
+#define TURN_LEFT -1
+#define TURN_RIGHT 1
 list<int> operation_list; // stores operations to be executed
 ```
 returns a list of operations
