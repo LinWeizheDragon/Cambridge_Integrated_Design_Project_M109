@@ -4,6 +4,8 @@ using namespace std;
 #include <robot_link.h>
 #include <stopwatch.h>
 #include <robot_delay.h>
+#include <autopilot.h>
+
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
 
@@ -21,6 +23,14 @@ void TestIO(){
 
 int main ()
 {
+    Node A,B;
+    A.name = "This is A";
+    B.name = "This is B";
+    A.left = &B;
+    B.right = &A;
+    A.print();
+    B.print();
+    
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
