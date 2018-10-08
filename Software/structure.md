@@ -28,6 +28,7 @@ int getDirection();
 map<string, *Node> node_storage;
 // current node
 Node* current_node;
+Node* previous_node;
 ```
 ### find route
 ```
