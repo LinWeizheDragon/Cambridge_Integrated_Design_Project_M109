@@ -2,7 +2,7 @@
 using namespace std;
 #include <robot_instr.h>
 #include <robot_link.h>
-#define ROBOT_NUM 33   // The id number (see below)
+#define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
 
 int main ()
