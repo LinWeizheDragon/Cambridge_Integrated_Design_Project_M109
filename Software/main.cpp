@@ -2,13 +2,21 @@
 using namespace std;
 #include <robot_instr.h>
 #include <robot_link.h>
+#include <stopwatch.h>
+#include <robot_delay.h>
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
 
 void TestIO(){
-    rlink.command(WRITE_PORT_3, 64+16+4+1);
-    int v=rlink.request (READ_PORT_3);
-    cout << "Value="  <<v << endl;
+    rlink.command(WRITE_PORT_3, 255);
+    stopwatch watch;
+    watch.start();
+    while(true){
+			int v=rlink.request (READ_PORT_3);
+			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+			watch.stop();
+			watch.start();
+	}
 }
 
 int main ()
