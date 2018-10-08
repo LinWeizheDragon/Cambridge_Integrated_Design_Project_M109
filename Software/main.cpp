@@ -5,6 +5,12 @@ using namespace std;
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
 
+void TestIO(){
+    rlink.command(WRITE_PORT_3, 64+16+4+1);
+    int v=rlink.request (READ_PORT_3);
+    cout << "Value="  <<v << endl;
+}
+
 int main ()
 {
     int val;                              // data from microprocessor
@@ -16,6 +22,7 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
+        TestIO();
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
