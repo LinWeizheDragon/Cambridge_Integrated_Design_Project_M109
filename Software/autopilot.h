@@ -21,10 +21,10 @@ list<int> operation_list; // stores operations to be executed
 class Node{
 public:
     string name="none";
-    FieldMap* left=NULL;
-    FieldMap* up=NULL;
-    FieldMap* right=NULL;
-    FieldMap* down=NULL;
+    Node* left=NULL;
+    Node* up=NULL;
+    Node* right=NULL;
+    Node* down=NULL;
     void print(){
         cout<<"name: "<<this->name<<endl;
         if (this->left != NULL){

@@ -4,7 +4,7 @@ using namespace std;
 #include <robot_link.h>
 #include <stopwatch.h>
 #include <robot_delay.h>
-#include <autopilot.h>
+#include "autopilot.h"
 
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
@@ -16,8 +16,6 @@ void TestIO(){
     while(true){
 			int v=rlink.request (READ_PORT_3);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
-			watch.stop();
-			watch.start();
 	}
 }
 
@@ -40,7 +38,7 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        TestIO();
+        //TestIO();
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
