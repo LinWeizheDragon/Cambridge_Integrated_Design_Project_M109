@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <robot_delay.h>
 using namespace std;
 
 #define UP 0
@@ -59,3 +60,20 @@ map<string, Node*>node_storage;
 // current node
 Node* current_node;
 Node* previous_node;
+int wheel_reading;
+int adjustment_power_increment = 0;
+int adjust_time = 0;
+
+void line_following(void){
+    int temp_speed = speed=rlink.request(MOTOR_1);
+    if (wheel_reading == 011){ // right detects the white line
+        rlink.command(MOTOR_1_GO, temp_speed + adjustment_power_increment);
+        delay (adjust_time);
+        rlink.command(MOTOR_1_GO, temp_speed);
+    }
+    if (wheel_reading == 110){ // left detects the white line
+        rlink.command(MOTOR_2_GO, temp_speed + adjustment_power_increment);
+        delay (adjust_time);
+        rlink.command(MOTOR_2_GO, temp_speed);
+    }
+}
