@@ -6,16 +6,10 @@ using namespace std;
 #define DOWN 2
 #define LEFT 3
 
-// a map of Nodes
-map<string, *Node> node_storage;
-// current node
-Node* current_node;
-Node* previous_node;
-
 #define GO_STRAIGHT 0
 #define TURN_LEFT -1
 #define TURN_RIGHT 1
-list<int> operation_list; // stores operations to be executed
+//list<int> operation_list; // stores operations to be executed
 
 
 class Node{
@@ -57,3 +51,9 @@ public:
         return this->direction;
     }
 };
+
+// a map of Nodes
+map<string, *Node> node_storage;
+// current node
+Node* current_node;
+Node* previous_node;
