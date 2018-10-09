@@ -2,11 +2,33 @@
 using namespace std;
 #include <robot_instr.h>
 #include <robot_link.h>
+#include <stopwatch.h>
+#include <robot_delay.h>
+#include "autopilot.h"
+
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
 
+void TestIO(){
+    rlink.command(WRITE_PORT_3, 255);
+    stopwatch watch;
+    watch.start();
+    while(true){
+			int v=rlink.request (READ_PORT_3);
+			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+	}
+}
+
 int main ()
 {
+    Node A,B;
+    A.name = "This is A";
+    B.name = "This is B";
+    A.left = &B;
+    B.right = &A;
+    A.print();
+    B.print();
+    
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -16,6 +38,7 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
+        //TestIO();
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
