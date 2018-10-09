@@ -1,4 +1,6 @@
 #include <iostream>
+#include <map>
+#include <list>
 using namespace std;
 
 #define UP 0
@@ -9,7 +11,7 @@ using namespace std;
 #define GO_STRAIGHT 0
 #define TURN_LEFT -1
 #define TURN_RIGHT 1
-//list<int> operation_list; // stores operations to be executed
+list<int> operation_list; // stores operations to be executed
 
 
 class Node{
@@ -53,7 +55,7 @@ public:
 };
 
 // a map of Nodes
-std::map<string, *Node> node_storage;
+map<string, Node*>node_storage;
 // current node
 Node* current_node;
 Node* previous_node;
