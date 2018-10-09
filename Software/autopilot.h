@@ -30,10 +30,10 @@ public:
             cout<<"right is:"<<this->right->name<<endl;
         }
         if (this->up!= NULL){
-            cout<<"up is:"<<this->right->name<<endl;
+            cout<<"up is:"<<this->up->name<<endl;
         }
         if (this->down!= NULL){
-            cout<<"down is:"<<this->right->name<<endl;
+            cout<<"down is:"<<this->down->name<<endl;
         }
         cout<<endl;
     }
@@ -53,6 +53,10 @@ public:
         return this->direction;
     }
 };
+Node S1, S2, A1, A2, B1, B2, B5, B6, B7, B8;
+Node C1, C2;
+Node D1, D2, D3, D4, D5, D6, D7, D8;
+Node E1, E2, E3, E4, E5, E6, E7, E8;
 
 // a map of Nodes
 map<string, Node*>node_storage;
