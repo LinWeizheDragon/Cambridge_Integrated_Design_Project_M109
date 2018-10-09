@@ -53,7 +53,7 @@ public:
 };
 
 // a map of Nodes
-map<string, *Node> node_storage;
+std::map<string, *Node> node_storage;
 // current node
 Node* current_node;
 Node* previous_node;
