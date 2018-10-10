@@ -69,6 +69,27 @@ void MapInitialization(){
     cout<<"Map Initialization completed, total:"<<node_storage.size()<<" nodes"<<endl;
     
 }
+
+void TaskInitialization(){
+    //task initialization
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    
+    //operation list initialization
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(TURN_RIGHT);
+    operation_list.push_back(TURN_LEFT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
+    current_node = &F3;
+    previous_node = &S2;
+}
 void TestIO(){
     rlink.command(WRITE_PORT_3, 255);
     stopwatch watch;
