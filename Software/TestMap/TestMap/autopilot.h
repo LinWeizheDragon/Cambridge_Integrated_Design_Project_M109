@@ -54,6 +54,7 @@ public:
     }
 };
 Node S1, S2, A1, A2, B1, B2, B5, B6, B7, B8;
+Node F1, F2, F3, F4;
 Node C1, C2;
 Node D1, D2, D3, D4, D5, D6, D7, D8;
 Node E1, E2, E3, E4, E5, E6, E7, E8;
