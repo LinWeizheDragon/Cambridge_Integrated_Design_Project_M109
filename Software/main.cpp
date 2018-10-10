@@ -81,13 +81,7 @@ void TestIO(){
 
 int main ()
 {
-    Node A,B;
-    A.name = "This is A";
-    B.name = "This is B";
-    A.left = &B;
-    B.right = &A;
-    A.print();
-    B.print();
+    MapInitialization();
     
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
