@@ -62,18 +62,84 @@ Node* current_node;
 Node* previous_node;
 int wheel_reading;
 int adjustment_power_increment = 0;
-int adjust_time = 0;
+bool crossing_detected = false;
+bool turning_process = false;
 
-void line_following(void){
-    int temp_speed = speed=rlink.request(MOTOR_1);
-    if (wheel_reading == 011){ // right detects the white line
-        rlink.command(MOTOR_1_GO, temp_speed + adjustment_power_increment);
-        delay (adjust_time);
-        rlink.command(MOTOR_1_GO, temp_speed);
+int get_state(void){
+    if (wheel_reading == 010)
+        return 0; // on track
+    if (wheel_reading == 011)
+        return 1; // right detects the white line
+    if (wheel_reading == 110)
+        return 2; // left detects the white line
+    if (wheel_reading == 111)
+        return 3; // a crossing detected
+    if (wheel_reading == 001)
+        return 4; // large deviation on the right
+    if (wheel_reading == 100)
+        return 5; // large deviation on the left
+    if (wheel_reading == 000)
+        return 6;
+    if (wheel_reading == 101)
+        return 7;
+}
+
+void line_following(int state, int motor_speed){ // 000 101 return the current state
+    if (state == 1){
+        rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment);
+        rlink.command(MOTOR_2_GO, motor_speed);
     }
-    if (wheel_reading == 110){ // left detects the white line
-        rlink.command(MOTOR_2_GO, temp_speed + adjustment_power_increment);
-        delay (adjust_time);
-        rlink.command(MOTOR_2_GO, temp_speed);
+    else if (state == 2){
+        rlink.command(MOTOR_1_GO, motor_speed);
+        rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment);
+    }
+    else if (state == 0){
+        rlink.command(BOTH_MOTORS_GO_SAME, motor_speed);
+    }
+    else if (state == 3){
+        crossing_detected = true;
+    }
+    else if (state == 4){
+        rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
+        rlink.command(MOTOR_2_GO, motor_speed);
+    }
+    else if (state == 5){
+        rlink.command(MOTOR_1_GO, motor_speed);
+        rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2);
+    }
+    else if (state == 6)
+        cout<<"error: state 6"<<endl;
+    else if (state == 7)
+        cout<<"error: state 7"<<endl;
+}
+
+void crossing_action(int action_index, int turning_speed){ // 0: pass, 1: go left, 2: go right
+    if (action_index == 1){
+        rlink.command(BOTH_MOTORS_GO_OPPOSITE, turning_speed);
+    }
+    if (action_index == 2){
+        rlink.command(BOTH_MOTORS_GO_OPPOSITE, turning_speed + 128);
+    }
+}
+
+void traverse(int action_list[], int action_number){
+    for (int i = 0; i < action_number; i++){
+        int state = get_state();
+        while (state != 3){
+            line_following(state, 10); // motor speed needs further modification
+            state = get_state();
+        }
+        while (state == 3){
+            crossing_action(action_list[i], 10); // turning speed needs further modification
+            state = get_state();
+        }
+        while (state != 3){
+            crossing_action(action_list[i], 10); // turning speed needs further modification
+            state = get_state();
+        }
+        while (state == 3){
+            rlink.command(BOTH_MOTORS_GO_SAME, 10); // motor speed needs further modification
+            state = get_state();
+        }
     }
 }
