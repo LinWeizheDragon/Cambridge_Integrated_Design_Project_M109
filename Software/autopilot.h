@@ -132,3 +132,7 @@ void UpdateNode(){
     cout<<" to "<<current_node->name<<endl;
     NextOperation();
 }
+
+//Error Code Definition
+#define ERROR_LOSE_WAY 0
+#define ERROR_PICKUP_FAIL 1
