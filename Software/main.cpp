@@ -25,10 +25,12 @@ void ErrorHandling(int error_code=-1){
             case ERROR_LOSE_WAY:
                 //TODO:
                 cout<<"ERR:  Lose the way, rebooting..."<<endl;
+                break;
             case ERROR_PICKUP_FAIL:
                 cout<<"ERR:  Pick-up fail, attempting again..."<<endl;
+                break;
                 //TODO:
-            case:
+            default:
                 cout<<"ERR:  Error Code("<<error_code<<") not programmed."<<endl;
         }
     }
