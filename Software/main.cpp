@@ -95,6 +95,27 @@ void MapInitialization(){
     cout<<"Map Initialization completed, total:"<<node_storage.size()<<" nodes"<<endl;
     
 }
+
+void TaskInitialization(){
+    //task initialization
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    
+    //operation list initialization
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(TURN_RIGHT);
+    operation_list.push_back(TURN_LEFT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
+    current_node = &F3;
+    previous_node = &S2;
+}
 void TestIO(){
     rlink.command(WRITE_PORT_3, 255);
     stopwatch watch;
@@ -109,6 +130,7 @@ void TestIO(){
 int main ()
 {
     MapInitialization();
+    TaskInitialization();
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -119,6 +141,7 @@ int main ()
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
         TestIO();
+        traverse(&C1);
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
@@ -128,8 +151,4 @@ int main ()
     else
         cout << "Test failed (bad value returned)" << endl;
     return -1;                          // error, finish
-    stopwatch watch;
-    watch.start();
-    while(watch.read() < 1000){
-        line_following(get_state(), 10);
 }

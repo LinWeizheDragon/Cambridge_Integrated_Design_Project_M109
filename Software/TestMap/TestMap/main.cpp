@@ -68,5 +68,30 @@ int main(int argc, const char * argv[]) {
         iter->second->print();
     }
     
+    //task initialization
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_SCAN_B);
+    
+    //operation list initialization
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(TURN_RIGHT);
+    operation_list.push_back(TURN_LEFT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
+    current_node = &F3;
+    previous_node = &S2;
+    UpdateNode();
+    UpdateNode();
+    UpdateNode();
+    UpdateNode();
+    UpdateNode();
+    
+    
     return 0;
 }
