@@ -113,33 +113,37 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
         cout<<"error: state 7"<<endl;
 }
 
-void crossing_action(int action_index, int turning_speed){ // 0: pass, 1: go left, 2: go right
-    if (action_index == 1){
+void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
+    if (action_index == -1){
         rlink.command(BOTH_MOTORS_GO_OPPOSITE, turning_speed);
     }
-    if (action_index == 2){
-        rlink.command(BOTH_MOTORS_GO_OPPOSITE, turning_speed + 128);
+    if (action_index == 1){
+        rlink.command(MOTOR_1_GO, turning_speed + 128);
+        rlink.command(MOTOR_2_GO, turning_speed);
     }
 }
 
-void traverse(int action_list[], int action_number){
-    for (int i = 0; i < action_number; i++){
+void traverse(Node* destination){
+    while (current_node -> name != destination -> name){
+        int action_index = GetOperationId();
         int state = get_state();
         while (state != 3){
             line_following(state, 10); // motor speed needs further modification
             state = get_state();
         }
         while (state == 3){
-            crossing_action(action_list[i], 10); // turning speed needs further modification
+            crossing_action(action_index, 10); // turning speed needs further modification
             state = get_state();
         }
         while (state != 3){
-            crossing_action(action_list[i], 10); // turning speed needs further modification
+            crossing_action(action_index, 10); // turning speed needs further modification
             state = get_state();
         }
         while (state == 3){
             rlink.command(BOTH_MOTORS_GO_SAME, 10); // motor speed needs further modification
             state = get_state();
         }
+        UpdateNode();
+        NextOperation();
     }
 }
