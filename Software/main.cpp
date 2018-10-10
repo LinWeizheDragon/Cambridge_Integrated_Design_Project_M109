@@ -128,4 +128,8 @@ int main ()
     else
         cout << "Test failed (bad value returned)" << endl;
     return -1;                          // error, finish
+    stopwatch watch;
+    watch.start();
+    while(watch.read() < 1000){
+        line_following(get_state(), 10);
 }
