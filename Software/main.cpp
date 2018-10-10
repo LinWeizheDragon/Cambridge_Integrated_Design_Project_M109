@@ -23,8 +23,12 @@ void InitializeNode(string name, Node* target, Node* left, Node* up, Node* right
 void MapInitialization(){
     cout<<"Map Initializing..."<<endl;
     // map initialization
-    InitializeNode("S2", &S2, NULL, NULL, &A2, &S1);
-    InitializeNode("S1", &S1, NULL, &S2, &A1, NULL);
+    InitializeNode("S2", &S2, &F1, &F2, &F3, &F4);
+    InitializeNode("S1", &S1, NULL, &F4, &A1, NULL);
+    InitializeNode("F1", &F1, NULL, NULL, &S2, NULL);
+    InitializeNode("F2", &F2, NULL, NULL, NULL, &S2);
+    InitializeNode("F3", &F3, &S2, NULL, &A2, &F4);
+    InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
     InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
     InitializeNode("A1", &A1, &S1, &A2, &B1, NULL);
