@@ -64,3 +64,8 @@ map<string, Node*>node_storage;
 // current node
 Node* current_node;
 Node* previous_node;
+
+
+//Error Code Definition
+#define ERROR_LOSE_WAY 0
+#define ERROR_PICKUP_FAIL 1
