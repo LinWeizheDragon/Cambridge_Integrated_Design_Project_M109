@@ -130,19 +130,39 @@ void TestIO(){
 void get_wheel_reading(void){
 	int v;
 	wheel_reading = 0;
-	v = rlink.request (READ_PORT_3);
-	if (v bitand 0x01){
-		wheel_reading += 100;
-	} 
-	v = v>>1;
-	if (v bitand 0x01)
-		wheel_reading += 10;
-	v = v>>1;
-	wheel_reading += v;
+	v = rlink.request (READ_PORT_0);
+	switch(v){
+		case 255:
+			wheel_reading = 111;
+			break;
+		case 250:
+			wheel_reading = 10;
+			break;
+		case 251:
+			wheel_reading = 110;
+			break;
+		case 254:
+			wheel_reading = 11;
+			break;
+		case 252:
+			wheel_reading = 1;
+			break;
+		case 249:
+			wheel_reading = 100;
+			break;
+		case 248:
+			wheel_reading = 0;
+			break;
+		default:
+			wheel_reading = 0;
+	}
+	//cout<<"input test:";
+	//cin>>wheel_reading;
+	
 }
 
 int get_state(void){
-	cout<<"wheel_reading:"<<wheel_reading<<endl;
+	//cout<<"wheel_reading:"<<wheel_reading<<endl;
     if (wheel_reading == 10)
         return 0; // on track
     else if (wheel_reading == 11)
@@ -191,7 +211,7 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		else if (state == 7)
 			cout<<"error: state 7"<<endl;  
 	}
-	cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+	//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
     previous_state = state;
 }
 
@@ -205,7 +225,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 			rlink.command(MOTOR_2_GO, turning_speed);
 		}
 	}
-			cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+			//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
 	rotated = true;
 }
 
@@ -213,6 +233,7 @@ void traverse(Node* destination){
 	rlink.command(BOTH_MOTORS_GO_SAME, 70);
     while (current_node -> name != destination -> name){
 		get_wheel_reading();
+		
         int action_index = GetOperationId();
         int state = get_state();
         while (state != 3){
