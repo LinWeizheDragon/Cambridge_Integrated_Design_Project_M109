@@ -127,6 +127,106 @@ void TestIO(){
 	}
 }
 
+void get_wheel_reading(void){
+	int v;
+	wheel_reading = 0;
+	v = rlink.request (READ_PORT_3);
+	if (v%2 == 1)
+		wheel_reading += 100;
+	if ((v-1)%4 == 2)
+		wheel_reading += 10;
+	if (v > 4)
+		wheel_reading += 1;
+}
+
+int get_state(void){
+    if (wheel_reading == 010)
+        return 0; // on track
+    if (wheel_reading == 011)
+        return 1; // right detects the white line
+    if (wheel_reading == 110)
+        return 2; // left detects the white line
+    if (wheel_reading == 111)
+        return 3; // a crossing detected
+    if (wheel_reading == 001)
+        return 4; // large deviation on the right
+    if (wheel_reading == 100)
+        return 5; // large deviation on the left
+    if (wheel_reading == 000)
+        return 6;
+    if (wheel_reading == 101)
+        return 7;
+    return -1;
+}
+
+void line_following(int state, int motor_speed){ // 000 101 return the current state
+    if (state == 1){
+        rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment);
+        rlink.command(MOTOR_2_GO, motor_speed);
+    }
+    else if (state == 2){
+        rlink.command(MOTOR_1_GO, motor_speed);
+        rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment);
+    }
+    else if (state == 0){
+        rlink.command(BOTH_MOTORS_GO_SAME, motor_speed);
+    }
+    else if (state == 3){
+        crossing_detected = true;
+    }
+    else if (state == 4){
+        rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
+        rlink.command(MOTOR_2_GO, motor_speed);
+    }
+    else if (state == 5){
+        rlink.command(MOTOR_1_GO, motor_speed);
+        rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2);
+    }
+    else if (state == 6)
+        cout<<"error: state 6"<<endl;
+    else if (state == 7)
+        cout<<"error: state 7"<<endl;
+    
+    cout<<'motor1'<<rlink.request(MOTOR_1)<<endl<<'motor2'<<rlink.request(MOTOR_2)<<endl;
+}
+
+void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
+    if (action_index == -1){
+        rlink.command(BOTH_MOTORS_GO_OPPOSITE, turning_speed);
+    }
+    if (action_index == 1){
+        rlink.command(MOTOR_1_GO, turning_speed + 128);
+        rlink.command(MOTOR_2_GO, turning_speed);
+    }
+}
+
+void traverse(Node* destination){
+	get_wheel_reading();
+	cout<<current_node -> name<<endl<<destination -> name<<endl;
+    while (current_node -> name != destination -> name){
+        int action_index = GetOperationId();
+        int state = get_state();
+        cout<<0<<endl;
+        while (state != 3){
+            line_following(state, 70); // motor speed needs further modification
+            state = get_state();
+        }
+        while (state == 3){
+            crossing_action(action_index, 50); // turning speed needs further modification
+            state = get_state();
+        }
+        while (state != 3){
+            crossing_action(action_index, 50); // turning speed needs further modification
+            state = get_state();
+        }
+        while (state == 3){
+            rlink.command(BOTH_MOTORS_GO_SAME, 70); // motor speed needs further modification
+            state = get_state();
+        }
+        UpdateNode();
+    }
+}
+
 int main ()
 {
     MapInitialization();
@@ -140,7 +240,7 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        TestIO();
+        // TestIO();
         traverse(&C1);
         return 0;                            // all OK, finish
     }
