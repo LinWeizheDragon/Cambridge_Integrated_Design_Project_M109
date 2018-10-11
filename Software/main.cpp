@@ -127,6 +127,7 @@ void TestIO(){
 	}
 }
 
+<<<<<<< HEAD
 void get_wheel_reading(void){
 	int v;
 	wheel_reading = 0;
@@ -155,6 +156,24 @@ int get_state(void){
     if (wheel_reading == 000)
         return 6;
     if (wheel_reading == 101)
+=======
+int get_state(void){
+    if (wheel_reading == 010)
+        return 0; // on track
+    else if (wheel_reading == 011)
+        return 1; // right detects the white line
+    else if (wheel_reading == 110)
+        return 2; // left detects the white line
+    else if (wheel_reading == 111)
+        return 3; // a crossing detected
+    else if (wheel_reading == 001)
+        return 4; // large deviation on the right
+    else if (wheel_reading == 100)
+        return 5; // large deviation on the left
+    else if (wheel_reading == 000)
+        return 6;
+    else if (wheel_reading == 101)
+>>>>>>> 5acae729c2048674e536961aa013731d061c9db0
         return 7;
     return -1;
 }
@@ -186,8 +205,11 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
         cout<<"error: state 6"<<endl;
     else if (state == 7)
         cout<<"error: state 7"<<endl;
+<<<<<<< HEAD
     
     cout<<'motor1'<<rlink.request(MOTOR_1)<<endl<<'motor2'<<rlink.request(MOTOR_2)<<endl;
+=======
+>>>>>>> 5acae729c2048674e536961aa013731d061c9db0
 }
 
 void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
@@ -201,12 +223,18 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 }
 
 void traverse(Node* destination){
+<<<<<<< HEAD
 	get_wheel_reading();
 	cout<<current_node -> name<<endl<<destination -> name<<endl;
     while (current_node -> name != destination -> name){
         int action_index = GetOperationId();
         int state = get_state();
         cout<<0<<endl;
+=======
+    while (current_node -> name != destination -> name){
+        int action_index = GetOperationId();
+        int state = get_state();
+>>>>>>> 5acae729c2048674e536961aa013731d061c9db0
         while (state != 3){
             line_following(state, 70); // motor speed needs further modification
             state = get_state();
