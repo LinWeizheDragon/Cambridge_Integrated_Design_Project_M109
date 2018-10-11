@@ -140,6 +140,8 @@ void UpdateNode(){
 }
 
 int wheel_reading;
-int adjustment_power_increment = 30;
+int adjustment_power_increment = 20;
+int previous_state = 0;
 bool crossing_detected = false;
 bool turning_process = false;
+bool rotated = false;
