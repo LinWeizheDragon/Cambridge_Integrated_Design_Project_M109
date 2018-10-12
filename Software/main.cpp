@@ -211,7 +211,7 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		else if (state == 7)
 			cout<<"error: state 7"<<endl;  
 	}
-	//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+	cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
     previous_state = state;
 }
 
@@ -228,7 +228,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
             rlink.command(BOTH_MOTORS_GO_SAME, 70);
         }
 	}
-			//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+			cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
 	rotated = true;
 }
 
