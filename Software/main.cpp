@@ -224,6 +224,9 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 			rlink.command(MOTOR_1_GO, turning_speed + 128);
 			rlink.command(MOTOR_2_GO, turning_speed);
 		}
+        else {
+            rlink.command(BOTH_MOTORS_GO_SAME, 70);
+        }
 	}
 			//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
 	rotated = true;
