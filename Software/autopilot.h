@@ -145,3 +145,5 @@ int previous_state = 0;
 bool crossing_detected = false;
 bool turning_process = false;
 bool rotated = false;
+int motor_common_speed = 70;
+int motor_turning_speed = 50;
