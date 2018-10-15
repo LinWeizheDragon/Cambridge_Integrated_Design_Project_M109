@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "autopilot.h"
+#include "led_control.h"
 using namespace std;
 
 /*
@@ -86,12 +87,19 @@ int main(int argc, const char * argv[]) {
     operation_list.push_back(GO_STRAIGHT);
     current_node = &F3;
     previous_node = &S2;
-    UpdateNode();
-    UpdateNode();
-    UpdateNode();
-    UpdateNode();
-    UpdateNode();
+    //UpdateNode();
+    //UpdateNode();
+    //UpdateNode();
+    //UpdateNode();
+    //UpdateNode();
     
+    LedClear();
+    LedDisplayOperation(LED_FOLLOWING_LINE, true);
+    LedDisplayOperation(LED_TURNING, true);
+    LedDisplayOperation(LED_FOLLOWING_LINE, false);
+    LedDisplayOperation(LED_TURNING, true);
+    LedDisplayOperation(LED_FOLLOWING_LINE, false);
+    LedDisplayOperation(LED_TURNING, false);
     
     return 0;
 }
