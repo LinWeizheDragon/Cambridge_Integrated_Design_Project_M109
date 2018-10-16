@@ -83,13 +83,18 @@ SetThrottle(int left_motor, int right_motor)
 ## Line Following
 ### Methods
 ```
-// loop inside this function, following the line
-void FollowLine();
+// get the readings of the light sensors at the wheels to return the current state
+int get_wheel_reading();
+// loop to give dictations to go from one point to another
+void traverse(Node* destination);
+// follow a line by ajusting the speed each time a deviation is detected
+void line_following(int state, int motor_speed);
 ```
 When a crossing is detected:
 ```
-// turn or go straight according to operations list
-void ExecuteOperation();
+// turn or go straight according to action_index
+// the turning will be achieved by using the stopwatch
+void crossing_action(int action_index, int turning_speed);
 ```
 
 ## Object Picking/Placing
