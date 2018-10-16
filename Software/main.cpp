@@ -109,8 +109,8 @@ void TaskInitialization(){
     
     //operation list initialization
     operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(TURN_RIGHT);
-    operation_list.push_back(TURN_LEFT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
     current_node = &F3;
@@ -162,7 +162,7 @@ void get_wheel_reading(void){
 }
 
 int get_state(void){
-	//cout<<"wheel_reading:"<<wheel_reading<<endl;
+	cout<<"wheel_reading:"<<wheel_reading<<endl;
     if (wheel_reading == 10)
         return 0; // on track
     else if (wheel_reading == 11)
@@ -170,7 +170,7 @@ int get_state(void){
     else if (wheel_reading == 110)
         return 2; // left detects the white line
     else if (wheel_reading == 111)
-        return 3; // a crossing detected
+        return 0; // a crossing detected
     else if (wheel_reading == 1)
         return 4; // large deviation on the right
     else if (wheel_reading == 100)
@@ -185,34 +185,66 @@ int get_state(void){
 void line_following(int state, int motor_speed){ // 000 101 return the current state
 	if (state != previous_state){
 		if (state == 1){
+			if (previous_state != 4){
 			rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment);
 			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
+			else {
+			rlink.command(MOTOR_1_GO, motor_speed);
+			rlink.command(MOTOR_2_GO, motor_speed);				
+			}
 		}
 		else if (state == 2){
+			if (previous_state != 5){
 			rlink.command(MOTOR_1_GO, motor_speed);
 			rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment + 128);
+			}
+			else{
+			rlink.command(MOTOR_1_GO, motor_speed);
+			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
 		}
 		else if (state == 0){
-            link.command(MOTOR_1_GO, motor_speed);
-            link.command(MOTOR_2_GO, motor_speed + 128);
+            rlink.command(MOTOR_1_GO, motor_speed);
+            rlink.command(MOTOR_2_GO, motor_speed + 128);
 		}
 		else if (state == 3){
 			cout<<"crossing_detected";
 		}
 		else if (state == 4){
+			if (previous_state != 6){
 			rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
 			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
+			else {
+			rlink.command(MOTOR_1_GO, motor_speed);
+			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
 		}
 		else if (state == 5){
+			if (previous_state != 6){
 			rlink.command(MOTOR_1_GO, motor_speed);
 			rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2 + 128);
+			}
+			else {
+			rlink.command(MOTOR_1_GO, motor_speed);
+			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
 		}
-		else if (state == 6)
-			cout<<"error: state 6"<<endl;
+		else if (state == 6){
+			if (previous_state == 4){
+			rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
+			rlink.command(MOTOR_2_GO, motor_speed + 128);
+			}
+			else if (previous_state == 5) {
+			rlink.command(MOTOR_1_GO, motor_speed);
+			rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2 + 128);
+			}
+		}
 		else if (state == 7)
 			cout<<"error: state 7"<<endl;  
 	}
-	cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+	//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
     previous_state = state;
 }
 
@@ -230,11 +262,12 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
             rlink.command(BOTH_MOTORS_GO_SAME, motor_common_speed);
         }
 	}
-			cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+			//cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
 	rotated = true;
 }
 
 void traverse(Node* destination){
+	rlink.command(RAMP_TIME, 0);
 	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
     while (current_node -> name != destination -> name){
 		get_wheel_reading();
