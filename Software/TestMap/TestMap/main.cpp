@@ -9,6 +9,7 @@
 #include <iostream>
 #include "autopilot.h"
 #include "led_control.h"
+#include "object_recognition.h"
 using namespace std;
 
 /*
@@ -21,6 +22,14 @@ void InitializeNode(string name, Node* target, Node* left, Node* up, Node* right
     target->right = right;
     target->down = down;
     node_storage[name] = target;
+}
+
+/*
+ Initialize an object
+ */
+void InitializeObject(string name, Object* target, Node* deliever_port){
+    target->name = name;
+    target->target = deliever_port;
 }
 
 int main(int argc, const char * argv[]) {
@@ -92,6 +101,14 @@ int main(int argc, const char * argv[]) {
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
+    
+    //Object Initialization
+    InitializeObject("red", &OBJECT_RED, &B5);
+    InitializeObject("white", &OBJECT_WHITE, &B6);
+    InitializeObject("green", &OBJECT_GREEN, &B5);
+    InitializeObject("wood", &OBJECT_WOOD, &B6);
+    InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    
     
     LedClear();
     LedDisplayOperation(LED_FOLLOWING_LINE, true);
