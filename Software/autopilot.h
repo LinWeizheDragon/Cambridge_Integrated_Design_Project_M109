@@ -147,3 +147,5 @@ bool turning_process = false;
 bool rotated = false;
 int motor_common_speed = 70;
 int motor_turning_speed = 50;
+int motor_turning_time = 1000;
+int motor_passing_crosing_time = 500;
