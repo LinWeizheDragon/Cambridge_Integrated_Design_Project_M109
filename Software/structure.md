@@ -95,8 +95,21 @@ void ExecuteOperation();
 ## Object Picking/Placing
 ### Clamp
 ```
-// clamp control
-void ClampControl(****);
+#define ARM_SHRINK 0
+#define ARM_EXTENDED 1
+#define CLAMP_OPEN 0
+#define CLAMP_CLOSED 1
+
+class Clamp(){
+public:
+int arm_status = ARM_SHRINK;
+int clamp_status = CLAMP_CLOSED;
+void ShrinkArm();
+void ExtendArm();
+void CloseClamp();
+void OpenClamp();
+}
+Clamp clamp;
 ```
 ### Picking
 ```
@@ -117,15 +130,17 @@ void PostPlace();
 ```
 class Object{
 public:
-**** //some features like color/weight
-string target; //target node name
-}
-Object* current_object=NULL;
+string name = "None";
+Node* target = NULL;
+};
+
+Object OBJECT_RED, OBJECT_WHITE, OBJECT_GREEN, OBJECT_WOOD, OBJECT_TRANS;
+Object* current_object; // store current object
 ```
 ### Methods
 ```
 // return object pointer
-Object* ObjectRecognition();
+Object* ObjectRecognition(int param)
 ```
 
 ## LED Control

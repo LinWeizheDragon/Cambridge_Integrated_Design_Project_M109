@@ -46,6 +46,14 @@ void InitializeNode(string name, Node* target, Node* left, Node* up, Node* right
     target->down = down;
     node_storage[name] = target;
 }
+/*
+ Initialize an object
+ */
+void InitializeObject(string name, Object* target, Node* deliever_port){
+    target->name = name;
+    target->target = deliever_port;
+}
+
 void MapInitialization(){
     cout<<"Map Initializing..."<<endl;
     // map initialization
@@ -115,7 +123,19 @@ void TaskInitialization(){
     operation_list.push_back(GO_STRAIGHT);
     current_node = &F3;
     previous_node = &S2;
+    cout<<"Task Initialization completed."<<endl;
 }
+
+void ObjectInitialization(){
+    //Object Initialization
+    InitializeObject("red", &OBJECT_RED, &B5);
+    InitializeObject("white", &OBJECT_WHITE, &B6);
+    InitializeObject("green", &OBJECT_GREEN, &B5);
+    InitializeObject("wood", &OBJECT_WOOD, &B6);
+    InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    cout<<"Object Initialization completed."<<endl;
+}
+
 void TestIO(){
     rlink.command(WRITE_PORT_3, 255);
     stopwatch watch;
@@ -130,6 +150,8 @@ void TestIO(){
 int main ()
 {
     MapInitialization();
+    TaskInitialization();
+    ObjectInitialization();
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
