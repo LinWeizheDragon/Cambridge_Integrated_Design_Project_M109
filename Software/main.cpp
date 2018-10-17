@@ -180,15 +180,15 @@ int get_state(void){
         return 6;
     else if (wheel_reading == 101)
         return 7;
-    return 6;
+    return 8;
 }
 
 void line_following(int state, int motor_speed){ // 000 101 return the current state
 	if (state != previous_state){
 		if (state == 1){
             if (previous_state != 5){
-                rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment);
-                rlink.command(MOTOR_2_GO, motor_speed + 128);
+                rlink.command(MOTOR_1_GO, motor_speed);
+                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement);
             }
             else{
                 link.command(MOTOR_1_GO, motor_speed);
@@ -197,7 +197,7 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		}
 		else if (state == 2){
             if (previous_state != 4){
-                rlink.command(MOTOR_1_GO, motor_speed);
+                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement);
                 rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment + 128);
             }
             else{
@@ -214,8 +214,8 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		}
 		else if (state == 4){
             if (previous_state != 6){
-                rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
-                rlink.command(MOTOR_2_GO, motor_speed + 128);
+                rlink.command(MOTOR_1_GO, motor_speed);
+                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement * 2);
             }
             else{
                 link.command(MOTOR_1_GO, motor_speed);
@@ -224,8 +224,8 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		}
 		else if (state == 5){
             if (previous_state != 6){
-                rlink.command(MOTOR_1_GO, motor_speed);
-                rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2 + 128);
+                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement * 2);
+                rlink.command(MOTOR_2_GO, motor_speed + 128);
             }
             else{
                 link.command(MOTOR_1_GO, motor_speed);
@@ -234,12 +234,12 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 		}
         else if (state == 6){
             if (previous_state == 4){
-                rlink.command(MOTOR_1_GO, motor_speed + adjustment_power_increment * 2);
-                rlink.command(MOTOR_2_GO, motor_speed + 128);
+                rlink.command(MOTOR_1_GO, motor_speed);
+                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement * 2);
             }
             else if (previous_state == 5){
-                rlink.command(MOTOR_1_GO, motor_speed);
-                rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment * 2 + 128);
+                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement * 2);
+                rlink.command(MOTOR_2_GO, motor_speed + 128);
             }
         }
 		else if (state == 7)
