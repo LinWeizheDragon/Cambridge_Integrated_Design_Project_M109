@@ -26,9 +26,41 @@ int getDirection();
 ```
 // a map of Nodes
 map<string, *Node> node_storage;
+```
+## Operation/Task System
+### Positioning
+```
 // current node
 Node* current_node;
+// previous node
 Node* previous_node;
+```
+### Task
+```
+//Task List Definition
+#define TASK_SCAN_A 1
+#define TASK_SCAN_B 2
+#define TASK_RETRACK 3
+#define TASK_WAITING 0
+
+list<int> task_list; // store tasks to be executed
+
+int GetTaskId();
+void NextTask();
+```
+### Operation
+```
+//Operation List Definition
+#define GO_STRAIGHT 0
+#define TURN_LEFT -1
+#define TURN_RIGHT 1
+#define TURN_BACK 2
+
+list<int> operation_list; // stores operations to be executed
+
+int GetOperationId();
+void NextOperation();
+void UpdateNode();
 ```
 ### find route
 ```
@@ -99,11 +131,31 @@ Object* ObjectRecognition();
 ## LED Control
 ### definition
 ```
-#define COLOR_NAME color_value
+// LED Definition
+#define LED_FOLLOWING_LINE 0x01
+#define LED_TURNING 0x02
+#define LED_ADJUSTING 0x04
+#define LED_RECOVERING 0x08
+#define LED_SCAN_C2 0x10
+#define LED_SCAN_C1 0x20
+#define LED_GOTO_D1 0x40
+#define LED_GOTO_D2 0x80
+
+#define LED_OBJECT_RED 0x01
+#define LED_OBJECT_WHITE 0x02
+#define LED_OBJECT_GREEN 0x04
+#define LED_OBJECT_WOOD 0x08
+#define LED_OBJECT_TRANS 0x10
 ```
 ### Methods
 ```
-void SetLed(****);
+// read operation led value
+int LedReadingOperation();
+// read object led value
+int LedReadingObject();
+// read set led display
+void LedDisplayOperation(int led_type, bool led_switch);
+void LedDisplayObject(int led_type, bool led_switch);
 ```
 
 ## Failure Detection and Processing

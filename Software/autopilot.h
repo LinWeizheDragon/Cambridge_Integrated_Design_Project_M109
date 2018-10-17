@@ -140,10 +140,12 @@ void UpdateNode(){
 }
 
 int wheel_reading;
-int adjustment_power_increment = 10;
+int adjustment_power_increment = 20;
 int previous_state = 0;
 bool crossing_detected = false;
 bool turning_process = false;
 bool rotated = false;
-int motor_common_speed = 50;
-int motor_turning_speed = 50;
+int motor_common_speed = 100;
+int motor_turning_speed = 100;
+int motor_turning_time = 1500;
+int motor_passing_crosing_time = 500;
