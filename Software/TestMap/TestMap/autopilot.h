@@ -135,18 +135,28 @@ void UpdateNode(){
 
 list<list<Node*>> queue;
 
+
+static int min_steps = 0;
+static int min_turns = 999;
+static list<int> min_op_list;
+
 bool VerrifyQueue(list<Node*> target_list){
-    if (target_list.size() < 5){
+    
+    list<int> op_list;
+    
+    // check whether there are duplicated nodes.
+    list<Node*> check_duplication_list = target_list;
+    check_duplication_list.sort();
+    check_duplication_list.unique();
+    if (check_duplication_list.size() != target_list.size()){
         return false;
     }
-    list<int> op_list;
     
     Node* last_node=NULL;
     Direction direction;
     direction.direction = current_direction.direction;
     for (list<Node*>::iterator it = target_list.begin(); it != target_list.end(); it++)
     {
-        
         if (last_node == NULL){
             last_node = (*it);
         }else{
@@ -175,16 +185,47 @@ bool VerrifyQueue(list<Node*> target_list){
                     operation_value -= 4;
                 if (operation_value == -2)
                     operation_value = 2;
-                cout<<"new operation: "<<operation_value<<" at "<<last_node->name<<endl;
+                //cout<<"new operation: "<<operation_value<<" at "<<last_node->name<<endl;
+                
+                // operations that can't be conducted
+                if (operation_value == TURN_LEFT && last_node->name == "A1" && new_direction == RIGHT){
+                    return false;
+                }
+                if (operation_value == TURN_LEFT && last_node->name == "B1" && new_direction == RIGHT){
+                    return false;
+                }
+                if (operation_value == TURN_LEFT && last_node->name == "C1" && new_direction == RIGHT){
+                    return false;
+                }
+                if (operation_value == TURN_LEFT && last_node->name == "D1" && new_direction == RIGHT){
+                    return false;
+                }
+                op_list.push_back(operation_value);
                 direction.direction = new_direction;
             }
             last_node = (*it);
         }
     }
+    
+    int turn_counter = 0;
+    for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
+    {
+        turn_counter += abs((*iter));
+    }
+    if (turn_counter < min_turns){
+        min_steps = (int)target_list.size();
+        min_op_list = op_list;
+        min_turns = turn_counter;
+    }
     return true;
 }
 void BFS(Node* to_node){
     bool found = false;
+    
+    // init the minimum step storage
+    min_op_list.clear();
+    min_steps=0;
+    
     while (!found){
         //cout<<"examining "<<queue.front().back()->name<<endl;
         if (queue.front().back()->name == to_node->name){
@@ -194,13 +235,15 @@ void BFS(Node* to_node){
                 cout << (*it)->name << " " ;
             }
             cout << endl;
-            if (queue.front().size() >= 20){
+            
+            
+            if (queue.front().size() > min_steps && min_op_list.size() != 0){
                 found = true;
             }
             if (VerrifyQueue(queue.front())){
-                cout<<"verrify yes"<<endl;
+                cout<<"valid solution"<<endl;
             }else{
-                cout<<"verrify no"<<endl;
+                cout<<"invalid solution"<<endl;
             }
             queue.pop_front();
         }else{
@@ -233,6 +276,12 @@ void BFS(Node* to_node){
             queue.pop_front();
         }
     }
+    cout<<"SOLUTION:"<<endl;
+    for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
+    {
+        cout << (*iter) << " " ;
+    }
+    cout << endl;
 }
 void FindRoute(Node* from_node, Node* to_node){
     list<Node*> init_list;

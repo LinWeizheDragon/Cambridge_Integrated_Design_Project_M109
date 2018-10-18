@@ -39,7 +39,7 @@ int main(int argc, const char * argv[]) {
     InitializeNode("S1", &S1, NULL, &F4, &A1, NULL);
     InitializeNode("F1", &F1, NULL, NULL, &S2, NULL);
     InitializeNode("F2", &F2, NULL, NULL, NULL, &S2);
-    InitializeNode("F3", &F3, &S2, NULL, &A2, &F4);
+    InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
     InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
@@ -119,7 +119,7 @@ int main(int argc, const char * argv[]) {
     LedDisplayOperation(LED_TURNING, false);
     */
     
-    FindRoute(&S2, &E6);
+    FindRoute(&D1, &B7);
     
     return 0;
 }
