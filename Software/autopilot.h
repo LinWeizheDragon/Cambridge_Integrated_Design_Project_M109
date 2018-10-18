@@ -24,6 +24,9 @@ list<int> task_list; // store tasks to be executed
 
 list<int> operation_list; // stores operations to be executed
 
+//Error Code Definition
+#define ERROR_LOSE_WAY 0
+#define ERROR_PICKUP_FAIL 1
 
 class Node{
 public:
