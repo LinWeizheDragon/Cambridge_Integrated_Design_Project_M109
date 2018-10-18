@@ -109,7 +109,7 @@ int main(int argc, const char * argv[]) {
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
     
-    
+    /*
     LedClear();
     LedDisplayOperation(LED_FOLLOWING_LINE, true);
     LedDisplayOperation(LED_TURNING, true);
@@ -117,6 +117,9 @@ int main(int argc, const char * argv[]) {
     LedDisplayOperation(LED_TURNING, true);
     LedDisplayOperation(LED_FOLLOWING_LINE, false);
     LedDisplayOperation(LED_TURNING, false);
+    */
+    
+    FindRoute(&S2, &E6);
     
     return 0;
 }

@@ -132,3 +132,114 @@ void UpdateNode(){
     cout<<" to "<<current_node->name<<endl;
     NextOperation();
 }
+
+list<list<Node*>> queue;
+
+bool VerrifyQueue(list<Node*> target_list){
+    if (target_list.size() < 5){
+        return false;
+    }
+    list<int> op_list;
+    
+    Node* last_node=NULL;
+    Direction direction;
+    direction.direction = current_direction.direction;
+    for (list<Node*>::iterator it = target_list.begin(); it != target_list.end(); it++)
+    {
+        
+        if (last_node == NULL){
+            last_node = (*it);
+        }else{
+            //cout<<"last node: "<<last_node->name<<endl;
+            //cout<<"current node: "<<(*it)->name<<endl;
+            
+            int new_direction=-1;
+            if (last_node->right != NULL && last_node->right->name == (*it)->name){
+                new_direction = RIGHT;
+            }
+            if (last_node->left != NULL && last_node->left->name == (*it)->name){
+                new_direction = LEFT;
+            }
+            if (last_node->up != NULL && last_node->up->name == (*it)->name){
+                new_direction = UP;
+            }
+            if (last_node->down != NULL && last_node->down->name == (*it)->name){
+                new_direction = DOWN;
+            }
+            //cout<<"new direction "<<new_direction<<endl;
+            if (new_direction!=-1){
+                int operation_value = new_direction - direction.direction;
+                if (operation_value < -2)
+                    operation_value += 4;
+                if (operation_value > 2)
+                    operation_value -= 4;
+                if (operation_value == -2)
+                    operation_value = 2;
+                cout<<"new operation: "<<operation_value<<" at "<<last_node->name<<endl;
+                direction.direction = new_direction;
+            }
+            last_node = (*it);
+        }
+    }
+    return true;
+}
+void BFS(Node* to_node){
+    bool found = false;
+    while (!found){
+        //cout<<"examining "<<queue.front().back()->name<<endl;
+        if (queue.front().back()->name == to_node->name){
+            cout<<"found result: ";
+            for (list<Node*>::iterator it = queue.front().begin(); it != queue.front().end(); it++)
+            {
+                cout << (*it)->name << " " ;
+            }
+            cout << endl;
+            if (queue.front().size() >= 20){
+                found = true;
+            }
+            if (VerrifyQueue(queue.front())){
+                cout<<"verrify yes"<<endl;
+            }else{
+                cout<<"verrify no"<<endl;
+            }
+            queue.pop_front();
+        }else{
+            Node* this_node = queue.front().back();
+            if (this_node->left != NULL){
+                //cout<<"add "<<this_node->left->name<<endl;
+                list<Node*> new_queue = queue.front();
+                new_queue.push_back(this_node->left);
+                queue.push_back(new_queue);
+            }
+            if (this_node->right!= NULL){
+                //cout<<"add "<<this_node->right->name<<endl;
+                list<Node*> new_queue = queue.front();
+                new_queue.push_back(this_node->right);
+                queue.push_back(new_queue);
+            }
+            if (this_node->up!= NULL){
+                //cout<<"add "<<this_node->up->name<<endl;
+                list<Node*> new_queue = queue.front();
+                new_queue.push_back(this_node->up);
+                queue.push_back(new_queue);
+            }
+            if (this_node->down!= NULL){
+                //cout<<"add "<<this_node->down->name<<endl;
+                list<Node*> new_queue = queue.front();
+                new_queue.push_back(this_node->down);
+                queue.push_back(new_queue);
+            }
+            //cout<<"delete "<<queue.front().back()->name<<endl;
+            queue.pop_front();
+        }
+    }
+}
+void FindRoute(Node* from_node, Node* to_node){
+    list<Node*> init_list;
+    init_list.push_back(from_node);
+    queue.push_back(init_list);
+    BFS(to_node);
+    
+
+}
+
