@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <cstdlib>
 using namespace std;
 
 #define UP 0
@@ -136,7 +137,7 @@ void UpdateNode(){
     NextOperation();
 }
 
-list<list<Node*>> queue;
+list< list<Node*> > queue;
 
 
 static int min_steps = 0;
