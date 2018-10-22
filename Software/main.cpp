@@ -5,6 +5,8 @@ using namespace std;
 #include <stopwatch.h>
 #include <robot_delay.h>
 #include "autopilot.h"
+#include "led_control.h"
+#include "object_recognition.h"
 
 #define ROBOT_NUM 10   // The id number (see below)
 stopwatch watch;
@@ -62,7 +64,7 @@ void MapInitialization(){
     InitializeNode("S1", &S1, NULL, &F4, &A1, NULL);
     InitializeNode("F1", &F1, NULL, NULL, &S2, NULL);
     InitializeNode("F2", &F2, NULL, NULL, NULL, &S2);
-    InitializeNode("F3", &F3, &S2, NULL, &A2, &F4);
+    InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
     InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
@@ -139,10 +141,11 @@ void ObjectInitialization(){
 
 void TestIO(){
     /*rlink.command(WRITE_PORT_3, 255);
+    rlink.command(WRITE_PORT_0, 255);
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request (READ_PORT_3);
+			int v=rlink.request (READ_PORT_0);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}*/
@@ -322,6 +325,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
+    FindRoute(&S2, &E8);
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;

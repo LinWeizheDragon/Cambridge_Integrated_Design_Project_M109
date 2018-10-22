@@ -7,19 +7,19 @@ using namespace std;
  Operation:
  bit 0: Following Line
  bit 1: Turning
- bit 2: Adjusting
- bit 3: Error Recovering
- bit 4: Going to scan C2
- bit 5: Going to scan C1
- bit 6: Going to lorry D1
- bit 7: Going to lorry D2
- 
+ bit 2: Error Recovering
+ bit 3-4:
+ 00: Going to scan C2, height 2
+ 01: Going to scan C1, height 1
+ 10: Going to lorry D1
+ 11: Going to lorry D2
+ bit 5-7
  Object:
- bit 0: red
- bit 1: white
- bit 2: green
- bit 3: wood
- bit 4: transparent
+ 000: red
+ 001: white
+ 010: green
+ 011: wood
+ 100: transparent
  **/
 
 // LED Definition
