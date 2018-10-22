@@ -155,169 +155,247 @@ void get_wheel_reading(void){
 	int v;
 	wheel_reading = 0;
 	v = rlink.request (READ_PORT_0);
+    v = v % 16 + 240;
 	switch(v){
-		case 255:
-			wheel_reading = 111;
+		case 255: // 11111111
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 1;
 			break;
-		case 250:
-			wheel_reading = 10;
+		case 250: // 1111010
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
 			break;
 		case 251:
-			wheel_reading = 110;
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
 			break;
 		case 254:
-			wheel_reading = 11;
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 1;
 			break;
 		case 252:
-			wheel_reading = 1;
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 1;
 			break;
 		case 249:
-			wheel_reading = 100;
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
 			break;
 		case 248:
-			wheel_reading = 0;
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
 			break;
+        case 253:
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 1;
+            break;
+        case 247:
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 246:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 245:
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 244:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 243:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 1;
+            break;
+        case 242:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 241:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
+            break;
+        case 240:
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 0;
+            break;
 		default:
-			wheel_reading = 0;
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 0;
 	}
-	//cout<<"input test:";
-	//cin>>wheel_reading;
-	
 }
 
+// four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
 int get_state(void){
-	//cout<<"wheel_reading:"<<wheel_reading<<endl;
-    if (wheel_reading == 10)
-        return 0; // on track
-    else if (wheel_reading == 11)
-        return 1; // small deviation on the left
-    else if (wheel_reading == 110)
-        return 2; // small deviation on the right
-    else if (wheel_reading == 111)
-        return 3; // a crossing detected
-    else if (wheel_reading == 1)
-        return 4; // large deviation on the right
-    else if (wheel_reading == 100)
-        return 5; // large deviation on the left
-    else if (wheel_reading == 0)
-        return 6;
-    else if (wheel_reading == 101)
-        return 7;
-    return 8;
+    get_wheel_reading();
+    //cout<<"wheel_reading:"<<wheel_reading<<endl;
+    if (front_left_sensor_reading == 1){
+        if (front_right_sensor_reading == 1){
+            if (middle_sensor_reading == 1)
+                return 0; // on track
+            return -1; // head on track but body off track
+        }
+        if (middle_sensor_reading == 1)
+            return 2; // deviation towards right
+        return 5; // large deviation towards right
+    }
+    if (front_right_sensor_reading == 1){
+        if (middle_sensor_reading == 1)
+            return 1; // deviation towards left
+        return 4; // large deviation towards left
+    }
+    if (middle_sensor_reading == 1){
+        return 6; // large deviation
+    }
+    return 7; // very large deviation
+}
+
+void motor_control(int left_wheel_power, int right_wheel_power){
+    link.command(MOTOR_1_GO, left_wheel_power);
+    link.command(MOTOR_2_GO, right_wheel_power + 128);
+}
+
+void reposition(void){
+    bool finished = false;
+    int ajust_time = 500;
+    watch.start();
+    int etime = watch.read();
+    while (true){
+        rlink.command(MOTOR_1_GO, motor_turning_speed);
+        rlink.command(MOTOR_2_GO, motor_turning_speed);
+        while (etime < ajust_time) {
+            if(front_left_sensor_reading == 0 || front_right_sensor_reading == 0){
+                finished = true;
+                break;
+            }
+            etime = watch.read();
+        }
+        if (finished == true)
+            break;
+        adjust_time += 500;
+        rlink.command(MOTOR_1_GO, motor_turning_speed + 128);
+        rlink.command(MOTOR_2_GO, motor_turning_speed + 128);
+        while (etime < ajust_time){
+            if(front_left_sensor_reading == 0 || front_right_sensor_reading == 0){
+                finished = true;
+                break;
+            }
+            etime = watch.read();
+        }
+        if (finished == true)
+            break;
+        adjust_time += 500;
+    }
 }
 
 void line_following(int state, int motor_speed){ // 000 101 return the current state
-	if (state != previous_state){
-		if (state == 1){
-            if (previous_state != 5){
-                rlink.command(MOTOR_1_GO, motor_speed);
-                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement);
-            }
-            else{
-                link.command(MOTOR_1_GO, motor_speed);
-                link.command(MOTOR_2_GO, motor_speed + 128);
-            }
-		}
-		else if (state == 2){
-            if (previous_state != 4){
-                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement);
-                rlink.command(MOTOR_2_GO, motor_speed + adjustment_power_increment + 128);
-            }
-            else{
-                link.command(MOTOR_1_GO, motor_speed);
-                link.command(MOTOR_2_GO, motor_speed + 128);
-            }
-		}
-		else if (state == 0){
-            link.command(MOTOR_1_GO, motor_speed);
-            link.command(MOTOR_2_GO, motor_speed + 128);
-		}
-		else if (state == 3){
-			cout<<"crossing_detected";
-		}
-		else if (state == 4){
-            if (previous_state != 6){
-                rlink.command(MOTOR_1_GO, motor_speed);
-                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement * 2);
-            }
-            else{
-                link.command(MOTOR_1_GO, motor_speed);
-                link.command(MOTOR_2_GO, motor_speed + 128);
-            }
-		}
-		else if (state == 5){
-            if (previous_state != 6){
-                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement * 2);
-                rlink.command(MOTOR_2_GO, motor_speed + 128);
-            }
-            else{
-                link.command(MOTOR_1_GO, motor_speed);
-                link.command(MOTOR_2_GO, motor_speed + 128);
-            }
-		}
-        else if (state == 6){
-            if (previous_state == 4){
-                rlink.command(MOTOR_1_GO, motor_speed);
-                rlink.command(MOTOR_2_GO, motor_speed + 128 - adjustment_power_decrement * 2);
-            }
-            else if (previous_state == 5){
-                rlink.command(MOTOR_1_GO, motor_speed - adjustment_power_decrement * 2);
-                rlink.command(MOTOR_2_GO, motor_speed + 128);
-            }
+    if (state != previous_state){
+        switch(state){
+            case 1:
+                motor_control(motor_speed, motor_speed - adjustment_power_decrement);
+                break;
+            case 2:
+                motor_control(motor_speed - adjustment_power_decrement, motor_speed);
+                break;
+            case 4:
+                motor_control(motor_speed, motor_speed - adjustment_power_decrement);
+                break;
+            case 5:
+                motor_control(motor_speed - adjustment_power_decrement, motor_speed);
+                break;
+            case 6:
+                reposition();
+                break;
+            case 7:
+                reposition();
+                break;
+            default:
+                motor_control(motor_speed, motor_speed);
         }
-		else if (state == 7)
-			cout<<"error: state 7"<<endl;  
-	}
-	cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
+    }
+    cout<<"motor1: "<<rlink.request(MOTOR_1)<<endl<<"motor2: "<<rlink.request(MOTOR_2)<<endl;
     previous_state = state;
 }
 
 void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
     watch.start();
     int etime = watch.read();
+    int state;
     if (action_index == 0){
+        rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
         while (etime < motor_passing_crosing_time){
-            rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
             etime = watch.read();
         }
     }
     else{
-        while (etime < motor_turning_time) {
-            if (action_index == -1){
-                rlink.command(MOTOR_1_GO, turning_speed);
-                rlink.command(MOTOR_2_GO, turning_speed);
-            }
-            else{
-                rlink.command(MOTOR_1_GO, turning_speed + 128);
-                rlink.command(MOTOR_2_GO, turning_speed + 128);
-            }
+        if (action_index == -1){
+            rlink.command(MOTOR_1_GO, turning_speed);
+            rlink.command(MOTOR_2_GO, turning_speed);
+        }
+        else{
+            rlink.command(MOTOR_1_GO, turning_speed + 128);
+            rlink.command(MOTOR_2_GO, turning_speed + 128);
+        }
+        while (etime < motor_pre_turing_time){
             etime = watch.read();
+        }
+        get_wheel_reading()
+        while (middle_sensor_reading == 0){
+            get_wheel_reading()
         }
     }
     watch.stop();
 }
 
 void traverse(Node* destination){
-	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
+    rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
     while (current_node -> name != destination -> name){
-		get_wheel_reading();
-		
         int action_index = GetOperationId();
         int state = get_state();
-        while (state != 3){
-            line_following(state, motor_common_speed); // motor speed needs further modification
-            get_wheel_reading();
+        while (back_sensor_reading != 1){
+            line_following(state, motor_common_speed);
             state = get_state();
         }
-        while (state == 3){
-			cout<<"action:"<<action_index<<endl;
-            crossing_action(action_index, motor_turning_speed); // turning speed needs further modification
-            get_wheel_reading();
-            state = get_state();
-        }
-        rotated = false;
-        UpdateNode();
+        cout<<"action:"<<action_index<<endl;
+        crossing_action(action_index, motor_turning_speed);
     }
+    UpdateNode();
 }
 
 int main ()

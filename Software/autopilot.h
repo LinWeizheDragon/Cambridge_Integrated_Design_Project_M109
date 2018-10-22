@@ -145,7 +145,7 @@ void UpdateNode(){
 }
 
 
-int wheel_reading;
+int front_left_sensor_reading, front_right_sensor_reading, middle_sensor_reading, back_sensor_reading;
 int adjustment_power_decrement = 30;
 int previous_state = 0;
 bool crossing_detected = false;
@@ -155,6 +155,7 @@ int motor_common_speed = 127;
 int motor_turning_speed = 50;
 int motor_turning_time = 1000;
 int motor_passing_crosing_time = 500;
+int motor_pre_turing_time = 1500;
 
 list< list<Node*> > queue;
 
