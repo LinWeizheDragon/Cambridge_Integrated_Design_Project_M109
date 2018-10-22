@@ -83,20 +83,38 @@ SetThrottle(int left_motor, int right_motor)
 ## Line Following
 ### Methods
 ```
-// loop inside this function, following the line
-void FollowLine();
+// get the readings of the light sensors at the wheels to return the current state
+int get_wheel_reading();
+// loop to give dictations to go from one point to another
+void traverse(Node* destination);
+// follow a line by ajusting the speed each time a deviation is detected
+void line_following(int state, int motor_speed);
 ```
 When a crossing is detected:
 ```
-// turn or go straight according to operations list
-void ExecuteOperation();
+// turn or go straight according to action_index
+// the turning will be achieved by using the stopwatch
+void crossing_action(int action_index, int turning_speed);
 ```
 
 ## Object Picking/Placing
 ### Clamp
 ```
-// clamp control
-void ClampControl(****);
+#define ARM_SHRINK 0
+#define ARM_EXTENDED 1
+#define CLAMP_OPEN 0
+#define CLAMP_CLOSED 1
+
+class Clamp(){
+public:
+int arm_status = ARM_SHRINK;
+int clamp_status = CLAMP_CLOSED;
+void ShrinkArm();
+void ExtendArm();
+void CloseClamp();
+void OpenClamp();
+}
+Clamp clamp;
 ```
 ### Picking
 ```
@@ -117,15 +135,17 @@ void PostPlace();
 ```
 class Object{
 public:
-**** //some features like color/weight
-string target; //target node name
-}
-Object* current_object=NULL;
+string name = "None";
+Node* target = NULL;
+};
+
+Object OBJECT_RED, OBJECT_WHITE, OBJECT_GREEN, OBJECT_WOOD, OBJECT_TRANS;
+Object* current_object; // store current object
 ```
 ### Methods
 ```
 // return object pointer
-Object* ObjectRecognition();
+Object* ObjectRecognition(int param)
 ```
 
 ## LED Control
@@ -159,4 +179,14 @@ void LedDisplayObject(int led_type, bool led_switch);
 ```
 
 ## Failure Detection and Processing
-TODO
+```
+// triggered when a microswitch at the edge is knocked
+// go back and find a line and try to continue the previous task
+void colision_failure();
+// triggered when a catch fails (arm light sensor returns a bad value)
+// redo the catch process
+void catch_failure();
+// triggered when a 000 signal is received for a long time
+// tries to go left and right to find the line
+void lose_way();
+```

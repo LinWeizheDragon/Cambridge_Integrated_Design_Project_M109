@@ -9,6 +9,7 @@
 #include <iostream>
 #include "autopilot.h"
 #include "led_control.h"
+#include "object_recognition.h"
 using namespace std;
 
 /*
@@ -23,6 +24,14 @@ void InitializeNode(string name, Node* target, Node* left, Node* up, Node* right
     node_storage[name] = target;
 }
 
+/*
+ Initialize an object
+ */
+void InitializeObject(string name, Object* target, Node* deliever_port){
+    target->name = name;
+    target->target = deliever_port;
+}
+
 int main(int argc, const char * argv[]) {
     
     // map initialization
@@ -30,7 +39,7 @@ int main(int argc, const char * argv[]) {
     InitializeNode("S1", &S1, NULL, &F4, &A1, NULL);
     InitializeNode("F1", &F1, NULL, NULL, &S2, NULL);
     InitializeNode("F2", &F2, NULL, NULL, NULL, &S2);
-    InitializeNode("F3", &F3, &S2, NULL, &A2, &F4);
+    InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
     InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
@@ -93,6 +102,14 @@ int main(int argc, const char * argv[]) {
     //UpdateNode();
     //UpdateNode();
     
+    //Object Initialization
+    InitializeObject("red", &OBJECT_RED, &B5);
+    InitializeObject("white", &OBJECT_WHITE, &B6);
+    InitializeObject("green", &OBJECT_GREEN, &B5);
+    InitializeObject("wood", &OBJECT_WOOD, &B6);
+    InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    
+    /*
     LedClear();
     LedDisplayOperation(LED_FOLLOWING_LINE, true);
     LedDisplayOperation(LED_TURNING, true);
@@ -100,6 +117,9 @@ int main(int argc, const char * argv[]) {
     LedDisplayOperation(LED_TURNING, true);
     LedDisplayOperation(LED_FOLLOWING_LINE, false);
     LedDisplayOperation(LED_TURNING, false);
+    */
+    
+    FindRoute(&D1, &B7);
     
     return 0;
 }
