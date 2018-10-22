@@ -163,29 +163,35 @@ void get_wheel_reading(void){
             middle_sensor_reading = 1;
             back_sensor_reading = 1;
 			break;
-		case 250: // 1111010
-            front_left_sensor_reading = 0;
+        case 254:
+            front_left_sensor_reading = 1;
             front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-			break;
-		case 251:
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
+            break;
+        case 253:
             front_left_sensor_reading = 1;
             front_right_sensor_reading = 1;
             middle_sensor_reading = 0;
             back_sensor_reading = 1;
-			break;
-		case 254:
-            front_left_sensor_reading = 0;
+            break;
+        case 252:
+            front_left_sensor_reading = 1;
             front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-			break;
-		case 252:
-            front_left_sensor_reading = 0;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 0;
+            break;
+        case 251:
+            front_left_sensor_reading = 1;
             front_right_sensor_reading = 0;
             middle_sensor_reading = 1;
             back_sensor_reading = 1;
+            break;
+		case 250: // 1111010
+            front_left_sensor_reading = 1;
+            front_right_sensor_reading = 0;
+            middle_sensor_reading = 1;
+            back_sensor_reading = 0;
 			break;
 		case 249:
             front_left_sensor_reading = 1;
@@ -194,22 +200,16 @@ void get_wheel_reading(void){
             back_sensor_reading = 1;
 			break;
 		case 248:
-            front_left_sensor_reading = 0;
+            front_left_sensor_reading = 1;
             front_right_sensor_reading = 0;
             middle_sensor_reading = 0;
-            back_sensor_reading = 1;
+            back_sensor_reading = 0;
 			break;
-        case 253:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
         case 247:
-            front_left_sensor_reading = 1;
+            front_left_sensor_reading = 0;
             front_right_sensor_reading = 1;
             middle_sensor_reading = 1;
-            back_sensor_reading = 0;
+            back_sensor_reading = 1;
             break;
         case 246:
             front_left_sensor_reading = 0;
@@ -218,15 +218,15 @@ void get_wheel_reading(void){
             back_sensor_reading = 0;
             break;
         case 245:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
+            front_left_sensor_reading = 0;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 0;
+            back_sensor_reading = 1;
             break;
         case 244:
             front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
+            front_right_sensor_reading = 1;
+            middle_sensor_reading = 0;
             back_sensor_reading = 0;
             break;
         case 243:
