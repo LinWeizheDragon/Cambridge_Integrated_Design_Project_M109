@@ -113,13 +113,12 @@ int main(int argc, const char * argv[]) {
     LedClear();
     LedDisplayOperation(LED_FOLLOWING_LINE, true);
     LedDisplayOperation(LED_TURNING, true);
-    LedDisplayOperation(LED_FOLLOWING_LINE, false);
-    LedDisplayOperation(LED_TURNING, true);
-    LedDisplayOperation(LED_FOLLOWING_LINE, false);
-    LedDisplayOperation(LED_TURNING, false);
-    */
-    
-    FindRoute(&D1, &B7);
-    
+    OutputBinary(LedReading());
+    LedDisplayTask(LED_GOTO_D2);
+    OutputBinary(LedReading());
+    LedDisplayObject(LED_OBJECT_GREEN);
+    //FindRoute(&D1, &B7);
+    OutputBinary(LedReading());
+     */
     return 0;
 }
