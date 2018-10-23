@@ -108,6 +108,7 @@ int main(int argc, const char * argv[]) {
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    InitializeObject("unkown", &OBJECT_UNKOWN, NULL);
     
     /*
     LedClear();
