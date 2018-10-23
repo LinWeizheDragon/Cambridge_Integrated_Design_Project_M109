@@ -12,6 +12,7 @@ using namespace std;
 int motor_turning_speed = 75;
 int adjustment_power_decrement = 5;
 int motor_common_speed = 127; //127 max
+int motor_passing_crosing_time = 300;
 stopwatch watch;
 robot_link rlink;      // datatype for the robot link
 /*
@@ -123,11 +124,13 @@ void TaskInitialization(){
     
     //operation list initialization
     operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(TURN_LEFT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(TURN_LEFT); 
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(TURN_RIGHT);
-    current_node = &A2;
-    previous_node = &F3;
+    current_node = &S2;
+    previous_node = &F1;
     cout<<"Task Initialization completed."<<endl;
 }
 
@@ -287,6 +290,19 @@ void motor_control(int left_wheel_power, int right_wheel_power){
     rlink.command(MOTOR_2_GO, right_wheel_power + 128);
 }
 
+void motor_turn(int speed, int direction){ // 0 for left, 1 for right
+	if (direction == 0){
+        rlink.command(MOTOR_1_GO, speed);
+        rlink.command(MOTOR_2_GO, speed + 18);
+	}
+	else if (direction == 1){
+        rlink.command(MOTOR_1_GO, speed + 128 + 8);
+        rlink.command(MOTOR_2_GO, speed + 128);
+	}
+	else
+		cout << "turning direction error";
+}
+
 void reposition(int direction){ // 0 for left, 1 for right
 	if (direction == 1){
 		rlink.command(MOTOR_1_GO, motor_turning_speed);
@@ -350,22 +366,22 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
     }
     else{
         if (action_index == -1){
-            rlink.command(MOTOR_1_GO, turning_speed);
-            rlink.command(MOTOR_2_GO, turning_speed+18);
+            motor_turn(turning_speed, 0);
         }
         else{
-            rlink.command(MOTOR_1_GO, turning_speed + 128);
-            rlink.command(MOTOR_2_GO, turning_speed + 128 + 18);
+            motor_turn(turning_speed, 1);
         }
         while (etime < motor_pre_turing_time){
             etime = watch.read();
         }
+        watch.stop();
+        cout<<"time up"<<endl;
         get_wheel_reading();
-        while (middle_sensor_reading == 0){
+        while (front_left_sensor_reading == 0  || front_right_sensor_reading == 0){
             get_wheel_reading();
         }
+        cout<<"turn complete"<<endl;
     }
-    watch.stop();
 }
 
 void traverse(Node* destination){
@@ -402,7 +418,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
-    FindRoute(&S2, &E8);
+    FindRoute(&S2, &D6);
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -414,7 +430,9 @@ int main ()
         cout << "Test passed" << endl;
         //TestIO();
         
-        traverse(&D6);
+        //traverse(&D6);
+                    motor_turn(motor_turning_speed, 1);
+                    while(true){};
         /*
         while(true){
 			rlink.command(MOTOR_1_GO, motor_common_speed);

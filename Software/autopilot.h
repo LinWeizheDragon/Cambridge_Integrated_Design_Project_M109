@@ -104,7 +104,7 @@ int GetOperationId(){
     if (!operation_list.empty()){
         return operation_list.front();
     }else{
-        return -1;
+        return 0;
     }
 }
 void NextOperation(){
@@ -150,7 +150,6 @@ int previous_state = 0;
 bool crossing_detected = false;
 bool turning_process = false;
 int motor_turning_time = 1000;
-int motor_passing_crosing_time = 500;
 int motor_pre_turing_time = 1500;
 
 list< list<Node*> > queue;
