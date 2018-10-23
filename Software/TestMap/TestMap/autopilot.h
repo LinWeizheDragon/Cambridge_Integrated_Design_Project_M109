@@ -64,7 +64,7 @@ public:
         return this->direction;
     }
 };
-Node S1, S2, A1, A2, B1, B2, B5, B6, B7, B8;
+Node S1, S2, A1, A2, A5, A6, A7, A8, B1, B2, B5, B6, B7, B8;
 Node F1, F2, F3, F4;
 Node C1, C2;
 Node D1, D2, D3, D4, D5, D6, D7, D8;
@@ -208,10 +208,11 @@ bool VerrifyQueue(list<Node*> target_list){
     }
     
     int turn_counter = 0;
-    for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
+    for (list<int>::iterator iter = op_list.begin(); iter != op_list.end(); iter++)
     {
         turn_counter += abs((*iter));
     }
+    cout<<"turn_counter:"<<turn_counter<<endl;
     if (turn_counter < min_turns){
         min_steps = (int)target_list.size();
         min_op_list = op_list;
@@ -289,6 +290,5 @@ void FindRoute(Node* from_node, Node* to_node){
     queue.push_back(init_list);
     BFS(to_node);
     
-
 }
 

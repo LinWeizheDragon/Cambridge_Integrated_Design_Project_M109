@@ -42,15 +42,21 @@ int main(int argc, const char * argv[]) {
     InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
-    InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
+    InitializeNode("A2", &A2, &S2, &A5, &B2, &A1);
     InitializeNode("A1", &A1, &S1, &A2, &B1, NULL);
+    InitializeNode("A5", &A5, NULL, &A6, &B5, &A2);
+    InitializeNode("A6", &A6, NULL, &A7, &B6, &A5);
+    InitializeNode("A7", &A7, NULL, &A8, &B7, &A6);
+    InitializeNode("A8", &A8, NULL, NULL, &B8, &A7);
+    
+    
     
     InitializeNode("B2", &B2, &A2, &B5, &C2, &B1);
     InitializeNode("B1", &B1, &A1, &B2, &C1, NULL);
-    InitializeNode("B5", &B5, NULL, &B6, &D5, &B2);
-    InitializeNode("B6", &B6, NULL, &B7, &D6, &B5);
-    InitializeNode("B7", &B7, NULL, &B8, &D7, &B6);
-    InitializeNode("B8", &B8, NULL, NULL, &D8, &B7);
+    InitializeNode("B5", &B5, &A5, &B6, &D5, &B2);
+    InitializeNode("B6", &B6, &A6, &B7, &D6, &B5);
+    InitializeNode("B7", &B7, &A7, &B8, &D7, &B6);
+    InitializeNode("B8", &B8, &A8, NULL, &D8, &B7);
     
     InitializeNode("C2", &C2, &B2, NULL, &D2, &C1);
     InitializeNode("C1", &C1, &B1, &C2, &D1, NULL);
@@ -101,6 +107,7 @@ int main(int argc, const char * argv[]) {
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
+    FindRoute(&S2, &D6);
     
     //Object Initialization
     InitializeObject("red", &OBJECT_RED, &B5);
