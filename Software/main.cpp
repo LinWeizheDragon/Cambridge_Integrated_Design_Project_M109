@@ -124,13 +124,14 @@ void TaskInitialization(){
     
     //operation list initialization
     operation_list.push_back(GO_STRAIGHT);
+    //operation_list.push_back(TURN_LEFT); 
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(TURN_LEFT); 
+    //operation_list.push_back(TURN_RIGHT); 
     operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(TURN_RIGHT);
-    current_node = &S2;
-    previous_node = &F1;
+    
+    current_node = &A2;
+    previous_node = &F3;
     cout<<"Task Initialization completed."<<endl;
 }
 
@@ -377,9 +378,10 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         watch.stop();
         cout<<"time up"<<endl;
         get_wheel_reading();
-        while (front_left_sensor_reading == 0  || front_right_sensor_reading == 0){
+        while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1)){
             get_wheel_reading();
         }
+        cout<<"frong_left:"<<front_left_sensor_reading<<endl<<"front_right:"<<front_right_sensor_reading<<endl;
         cout<<"turn complete"<<endl;
     }
 }
@@ -405,11 +407,10 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-		get_wheel_reading();
-		cout<<front_left_sensor_reading<<front_right_sensor_reading<<middle_sensor_reading<<back_sensor_reading<<endl;
-    
-			//int v=rlink.request (READ_PORT_0);
-			//cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+			int v=rlink.command(WRITE_PORT_0,255);
+			int a;
+			cin>>a;
+			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
 }
@@ -428,11 +429,11 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        //TestIO();
+        TestIO();
         
         //traverse(&D6);
-                    motor_turn(motor_turning_speed, 1);
-                    while(true){};
+                    //motor_turn(motor_turning_speed, 1);
+                    //while(true){};
         /*
         while(true){
 			rlink.command(MOTOR_1_GO, motor_common_speed);
