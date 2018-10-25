@@ -11,20 +11,20 @@ public:
     Node* target = NULL;
 };
 
-Object OBJECT_UNKOWN, OBJECT_RED, OBJECT_WHITE, OBJECT_GREEN, OBJECT_WOOD, OBJECT_TRANS;
+Object OBJECT_UNKNOWN, OBJECT_RED, OBJECT_WHITE, OBJECT_GREEN, OBJECT_WOOD, OBJECT_TRANS;
 Object* current_object;
 
 /*
  Function to recognize the object
  Get RECOGNITION_SAMPLE_NUMBER samples and take the most frequent one.
  */
-Object* ObjectRecognition(int param){
+Object* ObjectRecognition(list<int> params){
     // map to store samples
     map<Object*, int>samples;
     
     // list to store predefined objects
     list<Object*> object_list;
-    object_list.push_back(&OBJECT_UNKOWN);
+    object_list.push_back(&OBJECT_UNKNOWN);
     object_list.push_back(&OBJECT_WHITE);
     object_list.push_back(&OBJECT_TRANS);
     object_list.push_back(&OBJECT_WOOD);
@@ -34,17 +34,46 @@ Object* ObjectRecognition(int param){
     {
         Object* this_object = (*it);
         samples[this_object] = 0; // default value is 0
+        cout<<(*it)->name<<endl;
     }
-    
+    for (list<int>::iterator it = params.begin(); it != params.end(); it++){
+		int v = (*it);
+		cout<<v<<" ";
+		
+		if (v >=170){
+			samples[&OBJECT_UNKNOWN] += 1;
+		}
+		else if (v < 140 && v >= 130) {
+			samples[&OBJECT_GREEN] += 1;
+		}
+		else if (v < 115 && v >= 106){
+			//cout<<samples[&OBJECT_RED]<<endl;
+			samples[&OBJECT_RED] += 1;
+		}
+		else if (v < 130 && v >= 120){
+			samples[&OBJECT_TRANS] += 1;
+		}
+		else if (v < 70 && v >= 66){
+			//cout<<samples[&OBJECT_WHITE]<<endl;
+			samples[&OBJECT_WHITE] += 1;
+		}
+		else if (v < 76 && v >= 70){
+			samples[&OBJECT_WOOD] += 1;
+		}
+		else{
+			samples[&OBJECT_UNKNOWN] += 1;
+		}
+	}
     
     
     
     // find the most frequent result
     int max=0;
-    Object* max_object=&OBJECT_UNKOWN;
+    Object* max_object=&OBJECT_UNKNOWN;
     for (list<Object*>::iterator it = object_list.begin(); it != object_list.end(); it++)
     {
         Object* this_object = (*it);
+        cout<<this_object->name<<samples[this_object]<<endl;
         if (samples[this_object] > max){
             max = samples[this_object];
             max_object = this_object;

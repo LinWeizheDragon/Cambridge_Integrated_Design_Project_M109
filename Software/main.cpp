@@ -7,6 +7,7 @@ using namespace std;
 #include "autopilot.h"
 #include "led_control.h"
 #include "object_recognition.h"
+#include <list>
 
 #define ROBOT_NUM 10   // The id number (see below)
 robot_link rlink;      // datatype for the robot link
@@ -139,16 +140,20 @@ void ObjectInitialization(){
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
-    InitializeObject("unkown", &OBJECT_UNKOWN, NULL);
+    InitializeObject("unkown", &OBJECT_UNKNOWN, NULL);
+ 
     cout<<"Object Initialization completed."<<endl;
 }
 
 void TestIO(){
-    rlink.command(WRITE_PORT_0, 255);
+    //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request (READ_PORT_0);
+			int v=rlink.request (ADC1);
+			int a;
+			//cin>>a;
+			//rlink.command(WRITE_PORT_0, a);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
@@ -159,7 +164,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
-    FindRoute(&S2, &E8);
+    //FindRoute(&S2, &E8);
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -169,7 +174,17 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        //TestIO();
+        while(true){
+			int aa;
+			cin>>aa;
+			list<int> params;
+			for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
+				params.push_back(rlink.request(ADC1));
+			}
+			
+			ObjectRecognition(params);
+		}
+        TestIO();
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
