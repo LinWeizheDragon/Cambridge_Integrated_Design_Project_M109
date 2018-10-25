@@ -123,15 +123,17 @@ void TaskInitialization(){
     task_list.push_back(TASK_SCAN_B);
     
     //operation list initialization
-    operation_list.push_back(GO_STRAIGHT);
+    /*
+     *     operation_list.push_back(GO_STRAIGHT);
     //operation_list.push_back(TURN_LEFT); 
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
     //operation_list.push_back(TURN_RIGHT); 
-    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);//*/
     
-    current_node = &A2;
-    previous_node = &F3;
+    current_node = &S2;
+    previous_node = &F1;
+    FindRoute(&S2, &D6);
     cout<<"Task Initialization completed."<<endl;
 }
 
@@ -403,13 +405,13 @@ void traverse(Node* destination){
 }
 void TestIO(){
 	//rlink.command(WRITE_PORT_3, 255);
-    //rlink.command(WRITE_PORT_0, 255);
+    rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.command(WRITE_PORT_0,255);
-			int a;
-			cin>>a;
+			int v=rlink.request(READ_PORT_0);
+			//int a;
+			//cin>>a;
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
@@ -419,7 +421,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
-    FindRoute(&S2, &D6);
+    
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
