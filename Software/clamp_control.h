@@ -29,13 +29,11 @@ public:
     }
     int GetReading(int current_reading){
         int v = current_reading;
-        cout<<"previous:"<<v;
         if (v bitand 0x20){
             v = v - 0x20;
         }
         if (v bitand 0x80){
             v = v - 0x80;
-            cout<<" new v" <<v<<endl;
         }
         if (this->clamp_status == CLAMP_OPEN){
             v = v + 0x20;
@@ -43,7 +41,6 @@ public:
         if (this->arm_status == ARM_EXTENDED){
             v = v + 0x80;
         }
-        cout<<"current:"<<v<<endl;
         return v;
         
     }
