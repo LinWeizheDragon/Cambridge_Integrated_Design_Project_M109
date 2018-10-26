@@ -179,4 +179,14 @@ void LedDisplayObject(int led_type, bool led_switch);
 ```
 
 ## Failure Detection and Processing
-TODO
+```
+// triggered when a microswitch at the edge is knocked
+// go back and find a line and try to continue the previous task
+void colision_failure();
+// triggered when a catch fails (arm light sensor returns a bad value)
+// redo the catch process
+void catch_failure();
+// triggered when a 000 signal is received for a long time
+// tries to go left and right to find the line
+void lose_way();
+```
