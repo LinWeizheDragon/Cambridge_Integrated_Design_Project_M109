@@ -298,11 +298,9 @@ void BFS(Node* to_node){
     cout<<"SOLUTION:"<<endl;
     for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
     {
-		cout<<"h"<<endl;
         cout << (*iter) << " " ;
         operation_list.push_back(*iter);
     }
-    cout<<"hh"<<endl;
     cout << endl;
     cout<<operation_list.size()<<endl;
 }

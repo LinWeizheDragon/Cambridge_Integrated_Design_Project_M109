@@ -131,9 +131,14 @@ void TaskInitialization(){
     //operation_list.push_back(TURN_RIGHT); 
     operation_list.push_back(GO_STRAIGHT);//*/
     
+    ///////////Settings here////////////////////
     current_node = &S2;
     previous_node = &F1;
     FindRoute(&S2, &D6);
+    ////////////////////////////////////////////
+    
+    
+    cout<<"Total Operations = "<<operation_list.size()<<endl;
     cout<<"Task Initialization completed."<<endl;
 }
 
@@ -289,7 +294,7 @@ int get_state(void){
 }
 
 void motor_control(int left_wheel_power, int right_wheel_power){
-    rlink.command(MOTOR_1_GO, left_wheel_power - 10);
+    rlink.command(MOTOR_1_GO, left_wheel_power - 14);
     rlink.command(MOTOR_2_GO, right_wheel_power + 128);
 }
 
@@ -383,7 +388,9 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1)){
             get_wheel_reading();
         }
-        cout<<"frong_left:"<<front_left_sensor_reading<<endl<<"front_right:"<<front_right_sensor_reading<<endl;
+        motor_control(motor_common_speed, motor_common_speed);
+        while (back_sensor_reading == 1)
+			get_state();
         cout<<"turn complete"<<endl;
     }
 }
@@ -431,16 +438,15 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        TestIO();
+        //TestIO();
         
-        //traverse(&D6);
+        traverse(&D6);
                     //motor_turn(motor_turning_speed, 1);
                     //while(true){};
-        /*
-        while(true){
-			rlink.command(MOTOR_1_GO, motor_common_speed);
-            rlink.command(MOTOR_2_GO, motor_common_speed + 128);
-		}*/
+        
+//        while(true){
+//			motor_control(motor_common_speed, motor_common_speed);
+//		}
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
