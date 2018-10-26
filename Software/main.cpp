@@ -154,136 +154,34 @@ void get_wheel_reading(void){
     front_right_sensor_reading = (v/2) % 2;
     middle_sensor_reading =  (v/4) % 2;
     back_sensor_reading =  (v/8) % 2;
-     /*
-    v = v % 16 + 240;
-	switch(v){
-		case 255: // 11111111
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-			break;
-        case 254:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 253:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 252:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 251:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-		case 250: // 1111010
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-			break;
-		case 249:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-			break;
-		case 248:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-			break;
-        case 247:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 246:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 245:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 244:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 243:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 242:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 241:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 240:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-		default:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            
-	}*/
 }
 
 // four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
-int get_state(void){
+void get_state(void){
     get_wheel_reading();
     if (front_left_sensor_reading == 1){
         if (front_right_sensor_reading == 1){
             if (middle_sensor_reading == 1)
-                return 0; // on track
-            return -1; // head on track but body off track
+                state = 0; // on track
+            state = -1; // head on track but body off track
         }
         if (middle_sensor_reading == 1)
-            return 2; // deviation towards right
-        return 5; // large deviation towards right
+            state = 2; // deviation towards right
+        state = 5; // large deviation towards right
     }
     if (front_right_sensor_reading == 1){
         if (middle_sensor_reading == 1)
-            return 1; // deviation towards left
-        return 4; // large deviation towards left
+            state = 1; // deviation towards left
+        state = 4; // large deviation towards left
     }
     if (middle_sensor_reading == 1){
-        return 6; // large deviation
+        state = 6; // large deviation
     }
-    return 7; // very large deviation
+    state = 7; // very large deviation
+}
+
+void get_contact_switch(void){ // TO DO
+    contact_switch = false;
 }
 
 void motor_control(int left_wheel_power, int right_wheel_power){
@@ -322,7 +220,8 @@ void reposition(int direction){ // 0 for left, 1 for right
 	}
 }
 
-void line_following(int state, int motor_speed){ // 000 101 return the current state
+void line_following(int motor_speed){ // 000 101 return the current state
+    get_state();
     if (state != previous_state){
         switch(state){
             case 1:
@@ -381,7 +280,6 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1)){
             get_wheel_reading();
         }
-        cout<<"frong_left:"<<front_left_sensor_reading<<endl<<"front_right:"<<front_right_sensor_reading<<endl;
         cout<<"turn complete"<<endl;
     }
 }
@@ -391,16 +289,49 @@ void traverse(Node* destination){
 	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
     while (current_node -> name != destination -> name){
         int action_index = GetOperationId();
-        int state = get_state();
-        while (back_sensor_reading != 1){
-            line_following(state, motor_common_speed);
-            state = get_state();
-        }
+        get_state();
+        while (back_sensor_reading != 1)
+            line_following(motor_common_speed);
         cout<<"action:"<<action_index<<endl;
         crossing_action(action_index, motor_turning_speed);
         UpdateNode();
     }
 }
+
+void pick(void){
+    
+}
+
+void pick_line_action(void){
+    get_contact_switch();
+    get_state();
+    while (contact_switch == false){
+        line_following(motor_common_speed);
+        get_contact_switch();
+        if (back_sensor_reading == 1)
+            UpdateNode();
+    }
+    pick();
+}
+
+void get_some_put_signal(void){ // TO DO
+
+}
+
+void put(void){
+    
+}
+
+void put_line_action(void){
+    get_some_put_signal();
+    get_state();
+    while (contact_switch == false){ // CAN BE SOME OTHER CONDITION
+        line_following(motor_common_speed);
+        get_contact_switch();
+    }
+    put();
+}
+
 void TestIO(){
 	//rlink.command(WRITE_PORT_3, 255);
     //rlink.command(WRITE_PORT_0, 255);
@@ -414,6 +345,17 @@ void TestIO(){
         ErrorHandling();
 	}
 }
+
+void line_test(void){
+    motor_control(motor_common_speed);
+    while(true){}
+}
+
+void turn_test(int direction){
+    motor_turn(motor_turning_speed, direction);
+    while(true){}
+}
+
 int main ()
 {
     MapInitialization();
@@ -429,16 +371,16 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        TestIO();
+        //TestIO();
+        traverse(&D6);
         
-        //traverse(&D6);
-                    //motor_turn(motor_turning_speed, 1);
-                    //while(true){};
-        /*
-        while(true){
-			rlink.command(MOTOR_1_GO, motor_common_speed);
-            rlink.command(MOTOR_2_GO, motor_common_speed + 128);
-		}*/
+        /* basic loop
+        traverse(&somewhere);
+        pick_line_action();
+        traverse(&somewhere);
+        put_line_action();
+        */
+
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {

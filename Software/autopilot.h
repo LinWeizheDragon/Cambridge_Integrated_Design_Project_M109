@@ -147,10 +147,11 @@ void UpdateNode(){
 
 int front_left_sensor_reading, front_right_sensor_reading, middle_sensor_reading, back_sensor_reading;
 int previous_state = 0;
+int state = 0;
 bool crossing_detected = false;
-bool turning_process = false;
 int motor_turning_time = 1000;
 int motor_pre_turing_time = 1500;
+bool contact_switch = false;
 
 list< list<Node*> > queue;
 
