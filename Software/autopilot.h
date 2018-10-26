@@ -1,9 +1,9 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <robot_delay.h>
 #include <cstdlib>
-#include <robot_instr.h>
-#include <robot_link.h>
+
 using namespace std;
 
 #define UP 0
@@ -24,6 +24,10 @@ list<int> task_list; // store tasks to be executed
 #define TURN_LEFT -1
 #define TURN_RIGHT 1
 #define TURN_BACK 2
+
+//Error Code Definition
+#define ERROR_LOSE_WAY 0
+#define ERROR_PICKUP_FAIL 1
 
 list<int> operation_list; // stores operations to be executed
 
@@ -81,6 +85,7 @@ map<string, Node*>node_storage;
 // current node
 Node* current_node;
 Node* previous_node;
+
 // current direction
 Direction current_direction;
 int GetTaskId(){
@@ -99,7 +104,7 @@ int GetOperationId(){
     if (!operation_list.empty()){
         return operation_list.front();
     }else{
-        return -1;
+        return 0;
     }
 }
 void NextOperation(){
@@ -138,6 +143,14 @@ void UpdateNode(){
     cout<<" to "<<current_node->name<<endl;
     NextOperation();
 }
+
+
+int front_left_sensor_reading, front_right_sensor_reading, middle_sensor_reading, back_sensor_reading;
+int previous_state = 0;
+bool crossing_detected = false;
+bool turning_process = false;
+int motor_turning_time = 1000;
+int motor_pre_turing_time = 1500;
 
 list< list<Node*> > queue;
 
@@ -287,8 +300,10 @@ void BFS(Node* to_node){
     for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
     {
         cout << (*iter) << " " ;
+        operation_list.push_back(*iter);
     }
     cout << endl;
+    cout<<operation_list.size()<<endl;
 }
 void FindRoute(Node* from_node, Node* to_node){
     list<Node*> init_list;
@@ -296,6 +311,4 @@ void FindRoute(Node* from_node, Node* to_node){
     queue.push_back(init_list);
     BFS(to_node);
     
-    
 }
-
