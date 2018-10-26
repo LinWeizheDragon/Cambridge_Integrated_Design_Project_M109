@@ -155,7 +155,7 @@ void ObjectInitialization(){
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
-    InitializeObject("unkown", &OBJECT_UNKNOWN, NULL);
+    InitializeObject("unknown", &OBJECT_UNKNOWN, NULL);
  
     cout<<"Object Initialization completed."<<endl;
 }
@@ -169,112 +169,6 @@ void get_wheel_reading(void){
     front_right_sensor_reading = (v/2) % 2;
     middle_sensor_reading =  (v/4) % 2;
     back_sensor_reading =  (v/8) % 2;
-     /*
-    v = v % 16 + 240;
-	switch(v){
-		case 255: // 11111111
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-			break;
-        case 254:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 253:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 252:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 251:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-		case 250: // 1111010
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-			break;
-		case 249:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-			break;
-		case 248:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-			break;
-        case 247:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 246:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 245:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 244:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 243:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 242:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 241:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 240:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-		default:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            
-	}*/
 }
 
 // four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
@@ -418,6 +312,43 @@ void traverse(Node* destination){
         UpdateNode();
     }
 }
+
+void DetectObject(){
+    /*
+     This function recognize the object and setup LED display.
+     */
+    cout<<"Object Recognition: starting..."<<endl;
+    list<int> params;
+    for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
+        params.push_back(rlink.request(ADC1));
+    }
+    // change current object
+    current_object = ObjectRecognition(params);
+    cout<<"Object Recognition: Displaying..."<<endl;
+    switch (current_object->name){
+        case "red":
+            LedDisplayObject(LED_OBJECT_RED);
+            break;
+        case "green":
+            LedDisplayObject(LED_OBJECT_GREEN);
+            break;
+        case "white":
+            LedDisplayObject(LED_OBJECT_WHITE);
+            break;
+        case "wood":
+            LedDisplayObject(LED_OBJECT_WOOD);
+            break;
+        case "transparent":
+            LedDisplayObject(LED_OBJECT_TRANS);
+            break;
+        default:
+            LedDisplayObject(LED_OBJECT_UNKNOWN);
+            break;
+    }
+    // display LED
+    rlink.command(WRITE_PORT_7, LedReading());
+    cout<<"Object Recognition: finished."<<endl;
+}
 void TestIO(){
     //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
@@ -467,17 +398,6 @@ int main ()
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
         delay(3000);
         //traverse(&D6);
-        /*
-        while(true){
-          int aa;
-          cin>>aa;
-          list<int> params;
-          for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
-            params.push_back(rlink.request(ADC1));
-			    }
-			
-			    ObjectRecognition(params);
-		    }*/
         TestIO();
         return 0;                            // all OK, finish
     }
