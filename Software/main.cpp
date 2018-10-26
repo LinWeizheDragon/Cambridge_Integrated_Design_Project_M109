@@ -7,6 +7,7 @@ using namespace std;
 #include "autopilot.h"
 #include "led_control.h"
 #include "object_recognition.h"
+#include <list>
 
 #define ROBOT_NUM 10   // The id number (see below)
 int motor_turning_speed = 75;
@@ -71,15 +72,19 @@ void MapInitialization(){
     InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
-    InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
+    InitializeNode("A2", &A2, &S2, &A5, &B2, &A1);
     InitializeNode("A1", &A1, &S1, &A2, &B1, NULL);
+    InitializeNode("A5", &A5, NULL, &A6, &B5, &A2);
+    InitializeNode("A6", &A6, NULL, &A7, &B6, &A5);
+    InitializeNode("A7", &A7, NULL, &A8, &B7, &A6);
+    InitializeNode("A8", &A8, NULL, NULL, &B8, &A7);
     
     InitializeNode("B2", &B2, &A2, &B5, &C2, &B1);
     InitializeNode("B1", &B1, &A1, &B2, &C1, NULL);
-    InitializeNode("B5", &B5, NULL, &B6, &D5, &B2);
-    InitializeNode("B6", &B6, NULL, &B7, &D6, &B5);
-    InitializeNode("B7", &B7, NULL, &B8, &D7, &B6);
-    InitializeNode("B8", &B8, NULL, NULL, &D8, &B7);
+    InitializeNode("B5", &B5, &A5, &B6, &D5, &B2);
+    InitializeNode("B6", &B6, &A6, &B7, &D6, &B5);
+    InitializeNode("B7", &B7, &A7, &B8, &D7, &B6);
+    InitializeNode("B8", &B8, &A8, NULL, &D8, &B7);
     
     InitializeNode("C2", &C2, &B2, NULL, &D2, &C1);
     InitializeNode("C1", &C1, &B1, &C2, &D1, NULL);
@@ -149,6 +154,8 @@ void ObjectInitialization(){
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    InitializeObject("unkown", &OBJECT_UNKNOWN, NULL);
+ 
     cout<<"Object Initialization completed."<<endl;
 }
 
@@ -411,14 +418,14 @@ void traverse(Node* destination){
     }
 }
 void TestIO(){
-	//rlink.command(WRITE_PORT_3, 255);
-    rlink.command(WRITE_PORT_0, 0);
+    //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request(READ_PORT_0);
-			//int a;
+			int v=rlink.request (ADC1);
+			int a;
 			//cin>>a;
+			//rlink.command(WRITE_PORT_0, a);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
@@ -428,7 +435,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
-    
+
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -438,15 +445,19 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
+        //traverse(&D6);
+        /*
+        while(true){
+          int aa;
+          cin>>aa;
+          list<int> params;
+          for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
+            params.push_back(rlink.request(ADC1));
+			    }
+			
+			    ObjectRecognition(params);
+		    }*/
         //TestIO();
-        
-        traverse(&D6);
-                    //motor_turn(motor_turning_speed, 1);
-                    //while(true){};
-        
-//        while(true){
-//			motor_control(motor_common_speed, motor_common_speed);
-//		}
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
