@@ -6,6 +6,7 @@ using namespace std;
 #include <robot_delay.h>
 #include "autopilot.h"
 #include "led_control.h"
+#include "clamp_control.h"
 #include "object_recognition.h"
 #include <list>
 
@@ -422,11 +423,19 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request (ADC1);
-			int a;
-			//cin>>a;
-			//rlink.command(WRITE_PORT_0, a);
-			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+        int v=rlink.request (ADC1);
+        clamp.ExtendArm();
+        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        delay(5000);
+        clamp.OpenClamp();
+        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        delay(5000);
+        clamp.CloseClamp();
+        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        delay(5000);
+        clamp.ShrinkArm();
+        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        delay(5000);
         ErrorHandling();
 	}
 }
@@ -457,7 +466,7 @@ int main ()
 			
 			    ObjectRecognition(params);
 		    }*/
-        //TestIO();
+        TestIO();
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {

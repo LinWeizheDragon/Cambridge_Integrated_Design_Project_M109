@@ -10,6 +10,7 @@
 #include "autopilot.h"
 #include "led_control.h"
 #include "object_recognition.h"
+#include "clamp_control.h"
 using namespace std;
 
 /*
@@ -107,7 +108,7 @@ int main(int argc, const char * argv[]) {
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
-    FindRoute(&S2, &D6);
+    //FindRoute(&S2, &D6);
     
     //Object Initialization
     InitializeObject("red", &OBJECT_RED, &B5);
@@ -116,6 +117,16 @@ int main(int argc, const char * argv[]) {
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
     InitializeObject("unkown", &OBJECT_UNKOWN, NULL);
+    
+    /*
+    cout<<clamp.GetReading(0)<<endl;
+    clamp.ExtendArm();
+    cout<<clamp.GetReading(0x40 + 0x20)<<endl;
+    cout<<clamp.GetReading(0xff)<<endl;
+    clamp.OpenClamp();
+    cout<<clamp.GetReading(0xff)<<endl;
+    cout<<clamp.GetReading(0xff)<<endl;
+    */
     
     /*
     LedClear();
