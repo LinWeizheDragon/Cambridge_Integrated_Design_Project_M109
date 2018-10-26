@@ -423,18 +423,25 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-        int v=rlink.request (ADC1);
+        int v=rlink.request (READ_PORT_0);
+        cout<<"Extending..."<<endl;
         clamp.ExtendArm();
-        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
         delay(5000);
+        cout<<"Opening..."<<endl;
+        v=rlink.request (READ_PORT_0);
         clamp.OpenClamp();
-        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
         delay(5000);
+        cout<<"Closing..."<<endl;
+        v=rlink.request (READ_PORT_0);
         clamp.CloseClamp();
-        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
         delay(5000);
+        cout<<"Shrinking..."<<endl;
+        v=rlink.request (READ_PORT_0);
         clamp.ShrinkArm();
-        rlink.command(WRITE_PORT_0, clamp.GetReading());
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
         delay(5000);
         ErrorHandling();
 	}
@@ -454,6 +461,11 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
+        int v=rlink.request (READ_PORT_0);
+        clamp.CloseClamp();
+        clamp.ShrinkArm();
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+        delay(3000);
         //traverse(&D6);
         /*
         while(true){
