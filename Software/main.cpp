@@ -150,11 +150,11 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request (ADC1);
+			//int v=rlink.request (ADC1);
 			int a;
-			//cin>>a;
-			//rlink.command(WRITE_PORT_0, a);
-			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+			a = 255;
+			rlink.command(WRITE_PORT_0, a);
+			//cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
 }
