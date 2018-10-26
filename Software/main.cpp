@@ -7,6 +7,7 @@ using namespace std;
 #include "autopilot.h"
 #include "led_control.h"
 #include "object_recognition.h"
+#include <list>
 
 #define ROBOT_NUM 10   // The id number (see below)
 int motor_turning_speed = 75;
@@ -71,15 +72,19 @@ void MapInitialization(){
     InitializeNode("F3", &F3, &S2, NULL, &A2, NULL);
     InitializeNode("F4", &F4, NULL, &S2, NULL, &S1);
     
-    InitializeNode("A2", &A2, &S2, NULL, &B2, &A1);
+    InitializeNode("A2", &A2, &S2, &A5, &B2, &A1);
     InitializeNode("A1", &A1, &S1, &A2, &B1, NULL);
+    InitializeNode("A5", &A5, NULL, &A6, &B5, &A2);
+    InitializeNode("A6", &A6, NULL, &A7, &B6, &A5);
+    InitializeNode("A7", &A7, NULL, &A8, &B7, &A6);
+    InitializeNode("A8", &A8, NULL, NULL, &B8, &A7);
     
     InitializeNode("B2", &B2, &A2, &B5, &C2, &B1);
     InitializeNode("B1", &B1, &A1, &B2, &C1, NULL);
-    InitializeNode("B5", &B5, NULL, &B6, &D5, &B2);
-    InitializeNode("B6", &B6, NULL, &B7, &D6, &B5);
-    InitializeNode("B7", &B7, NULL, &B8, &D7, &B6);
-    InitializeNode("B8", &B8, NULL, NULL, &D8, &B7);
+    InitializeNode("B5", &B5, &A5, &B6, &D5, &B2);
+    InitializeNode("B6", &B6, &A6, &B7, &D6, &B5);
+    InitializeNode("B7", &B7, &A7, &B8, &D7, &B6);
+    InitializeNode("B8", &B8, &A8, NULL, &D8, &B7);
     
     InitializeNode("C2", &C2, &B2, NULL, &D2, &C1);
     InitializeNode("C1", &C1, &B1, &C2, &D1, NULL);
@@ -123,15 +128,22 @@ void TaskInitialization(){
     task_list.push_back(TASK_SCAN_B);
     
     //operation list initialization
-    operation_list.push_back(GO_STRAIGHT);
+    /*
+     *     operation_list.push_back(GO_STRAIGHT);
     //operation_list.push_back(TURN_LEFT); 
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
     //operation_list.push_back(TURN_RIGHT); 
-    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);//*/
     
-    current_node = &A2;
-    previous_node = &F3;
+    ///////////Settings here////////////////////
+    current_node = &S2;
+    previous_node = &F1;
+    FindRoute(&S2, &D6);
+    ////////////////////////////////////////////
+    
+    
+    cout<<"Total Operations = "<<operation_list.size()<<endl;
     cout<<"Task Initialization completed."<<endl;
 }
 
@@ -142,6 +154,8 @@ void ObjectInitialization(){
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
+    InitializeObject("unkown", &OBJECT_UNKNOWN, NULL);
+ 
     cout<<"Object Initialization completed."<<endl;
 }
 
@@ -185,7 +199,7 @@ void get_contact_switch(void){ // TO DO
 }
 
 void motor_control(int left_wheel_power, int right_wheel_power){
-    rlink.command(MOTOR_1_GO, left_wheel_power - 10);
+    rlink.command(MOTOR_1_GO, left_wheel_power - 14);
     rlink.command(MOTOR_2_GO, right_wheel_power + 128);
 }
 
@@ -280,6 +294,12 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1)){
             get_wheel_reading();
         }
+<<<<<<< HEAD
+=======
+        motor_control(motor_common_speed, motor_common_speed);
+        while (back_sensor_reading == 1)
+			get_state();
+>>>>>>> 8f5693d07e03813ddd366f9c38bdea532f580c22
         cout<<"turn complete"<<endl;
     }
 }
@@ -333,14 +353,14 @@ void put_line_action(void){
 }
 
 void TestIO(){
-	//rlink.command(WRITE_PORT_3, 255);
-    //rlink.command(WRITE_PORT_0, 255);
+    //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.command(WRITE_PORT_0,255);
+			int v=rlink.request (ADC1);
 			int a;
-			cin>>a;
+			//cin>>a;
+			//rlink.command(WRITE_PORT_0, a);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
@@ -361,7 +381,7 @@ int main ()
     MapInitialization();
     TaskInitialization();
     ObjectInitialization();
-    FindRoute(&S2, &D6);
+
     int val;                              // data from microprocessor
     if (!rlink.initialise (ROBOT_NUM)) { // setup the link
         cout << "Cannot initialise link" << endl;
@@ -380,7 +400,6 @@ int main ()
         traverse(&somewhere);
         put_line_action();
         */
-
         return 0;                            // all OK, finish
     }
     else if (val == REQUEST_ERROR) {
