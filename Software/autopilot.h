@@ -245,6 +245,7 @@ void BFS(Node* to_node){
     // init the minimum step storage
     min_op_list.clear();
     min_steps=0;
+    min_turns=999;
     
     while (!found){
         //cout<<"examining "<<queue.front().back()->name<<endl;
@@ -308,6 +309,7 @@ void BFS(Node* to_node){
 void FindRoute(Node* from_node, Node* to_node){
     list<Node*> init_list;
     init_list.push_back(from_node);
+    queue.clear();
     queue.push_back(init_list);
     BFS(to_node);
     
