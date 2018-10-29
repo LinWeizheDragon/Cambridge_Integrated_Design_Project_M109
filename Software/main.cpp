@@ -6,6 +6,7 @@ using namespace std;
 #include <robot_delay.h>
 #include "autopilot.h"
 #include "led_control.h"
+#include "clamp_control.h"
 #include "object_recognition.h"
 #include <list>
 
@@ -14,6 +15,8 @@ int motor_turning_speed = 75;
 int adjustment_power_decrement = 5;
 int motor_common_speed = 127; //127 max
 int motor_passing_crosing_time = 300;
+int motor_pre_turing_time = 2400;
+int motor_middle_turing_time = 2700;
 stopwatch watch;
 robot_link rlink;      // datatype for the robot link
 /*
@@ -139,7 +142,15 @@ void TaskInitialization(){
     ///////////Settings here////////////////////
     current_node = &S2;
     previous_node = &F1;
-    FindRoute(&S2, &D6);
+    current_direction.direction = RIGHT;
+    FindRoute(&S2, &E7);
+    current_direction.direction = RIGHT;
+    FindRoute(&E7, &E1);
+    cout<<"Route: ";
+    for (list<int>::iterator iter = operation_list.begin(); iter != operation_list.end(); iter++)
+    {
+        cout << (*iter) << " " ;
+    }
     ////////////////////////////////////////////
     
     
@@ -168,112 +179,6 @@ void get_wheel_reading(void){
     front_right_sensor_reading = (v/2) % 2;
     middle_sensor_reading =  (v/4) % 2;
     back_sensor_reading =  (v/8) % 2;
-     /*
-    v = v % 16 + 240;
-	switch(v){
-		case 255: // 11111111
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-			break;
-        case 254:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 253:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 252:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 251:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-		case 250: // 1111010
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-			break;
-		case 249:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-			break;
-		case 248:
-            front_left_sensor_reading = 1;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-			break;
-        case 247:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 246:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 245:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 244:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 1;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-        case 243:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 1;
-            break;
-        case 242:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 1;
-            back_sensor_reading = 0;
-            break;
-        case 241:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 1;
-            break;
-        case 240:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            break;
-		default:
-            front_left_sensor_reading = 0;
-            front_right_sensor_reading = 0;
-            middle_sensor_reading = 0;
-            back_sensor_reading = 0;
-            
-	}*/
 }
 
 // four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
@@ -301,12 +206,12 @@ int get_state(void){
 }
 
 void motor_control(int left_wheel_power, int right_wheel_power){
-    rlink.command(MOTOR_1_GO, left_wheel_power - 14);
+    rlink.command(MOTOR_1_GO, left_wheel_power - 16);
     rlink.command(MOTOR_2_GO, right_wheel_power + 128);
 }
 
-void motor_turn(int speed, int direction){ // 0 for left, 1 for right
-	if (direction == 0){
+void motor_turn(int speed, int direction){ // -1 for left, 1 for right
+	if (direction == -1){
         rlink.command(MOTOR_1_GO, speed);
         rlink.command(MOTOR_2_GO, speed + 18);
 	}
@@ -380,24 +285,30 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         }
     }
     else{
-        if (action_index == -1){
-            motor_turn(turning_speed, 0);
-        }
-        else{
-            motor_turn(turning_speed, 1);
-        }
-        while (etime < motor_pre_turing_time){
+        motor_turn(turning_speed, action_index);
+        while (etime < motor_pre_turing_time + (action_index + 1)*700){
             etime = watch.read();
         }
-        watch.stop();
-        cout<<"time up"<<endl;
-        get_wheel_reading();
-        while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1)){
-            get_wheel_reading();
-        }
-        motor_control(motor_common_speed, motor_common_speed);
-        while (back_sensor_reading == 1)
-			get_state();
+        if (current_node -> name == "E1" || current_node -> name == "A1" || current_node -> name == "E6"){
+			motor_control(motor_common_speed, motor_common_speed);
+			while (etime < motor_middle_turing_time + (action_index + 1)*700){
+				etime = watch.read();
+			}
+			motor_turn(turning_speed, action_index);
+			watch.stop();
+			get_wheel_reading();
+			while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1))
+				get_wheel_reading();
+		}
+		else {
+			watch.stop();
+			motor_turn(turning_speed, action_index);
+			while ((front_left_sensor_reading != 1 && action_index == 1) || (front_right_sensor_reading != 1 && action_index == -1))
+				get_wheel_reading();
+			motor_control(motor_common_speed, motor_common_speed);
+			while (back_sensor_reading == 1)
+				get_state();
+		}
         cout<<"turn complete"<<endl;
     }
 }
@@ -422,11 +333,8 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-			//int v=rlink.request (ADC1);
-			int a;
-			a = 255;
-			rlink.command(WRITE_PORT_0, a);
-			//cout << "time:" << watch.read() << "\tValue="  <<v << endl;
+			int v=rlink.request (READ_PORT_0);
+			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
         ErrorHandling();
 	}
 }
@@ -445,18 +353,23 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
-        //traverse(&D6);
         /*
-        while(true){
+        int v=rlink.request (READ_PORT_0);
+        clamp.CloseClamp();
+        clamp.ShrinkArm();
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+        delay(3000);*/
+        traverse(&E1);
+ /*       while(true){
           int aa;
-          cin>>aa;
+          //cin>>aa;
           list<int> params;
           for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
             params.push_back(rlink.request(ADC1));
 			    }
 			
 			    ObjectRecognition(params);
-		    }*/
+		    }//*/
         //TestIO();
         return 0;                            // all OK, finish
     }

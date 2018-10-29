@@ -43,21 +43,21 @@ Object* ObjectRecognition(list<int> params){
 		if (v >=170){
 			samples[&OBJECT_UNKNOWN] += 1;
 		}
-		else if (v < 140 && v >= 130) {
+		else if (v < 150 && v >= 135) {
 			samples[&OBJECT_GREEN] += 1;
 		}
-		else if (v < 115 && v >= 106){
+		else if (v < 120 && v >= 106){
 			//cout<<samples[&OBJECT_RED]<<endl;
 			samples[&OBJECT_RED] += 1;
 		}
-		else if (v < 130 && v >= 120){
+		else if (v < 135 && v >= 120){
 			samples[&OBJECT_TRANS] += 1;
 		}
-		else if (v < 70 && v >= 66){
+		else if (v < 88 && v >= 66){
 			//cout<<samples[&OBJECT_WHITE]<<endl;
 			samples[&OBJECT_WHITE] += 1;
 		}
-		else if (v < 76 && v >= 70){
+		else if (v < 106 && v >= 88){
 			samples[&OBJECT_WOOD] += 1;
 		}
 		else{
