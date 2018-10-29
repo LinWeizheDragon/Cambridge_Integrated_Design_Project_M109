@@ -121,14 +121,10 @@ void MapInitialization(){
 
 void TaskInitialization(){
     //task initialization
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_WAITING);
+    task_list.push_back(TASK_GOTO_E7);
+    task_list.push_back(TASK_GOTO_E1);
+    task_list.push_back(TASK_GOTO_A5);
     
     //operation list initialization
     /*
@@ -142,6 +138,7 @@ void TaskInitialization(){
     ///////////Settings here////////////////////
     current_node = &S2;
     previous_node = &F1;
+    /*
     current_direction.direction = RIGHT;
     FindRoute(&S2, &E7);
     current_direction.direction = RIGHT;
@@ -150,7 +147,7 @@ void TaskInitialization(){
     for (list<int>::iterator iter = operation_list.begin(); iter != operation_list.end(); iter++)
     {
         cout << (*iter) << " " ;
-    }
+    }//*/
     ////////////////////////////////////////////
     
     
@@ -313,10 +310,10 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
     }
 }
 
-void traverse(Node* destination){
+void traverse(){
 	rlink.command(RAMP_TIME, 0);
 	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
-    while (current_node -> name != destination -> name){
+    while (!operation_list.empty()){
         int action_index = GetOperationId();
         int state = get_state();
         while (back_sensor_reading != 1){
@@ -397,7 +394,23 @@ int main ()
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 
         delay(3000);*/
-        traverse(&E1);
+        while (true){
+            if (operation_list.empty()){
+                NextTask();
+                // no next operation
+                if (GetTaskId() != -1){
+                    // init next task
+                    InitNextTask(GetTaskId());
+                }else{
+                    // finish all tasks
+                    return;
+                }
+            }else{
+                // do traverse until operation_list is empty.
+                traverse();
+            }
+        }
+        
  /*       while(true){
           int aa;
           //cin>>aa;

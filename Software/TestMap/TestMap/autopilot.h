@@ -9,10 +9,17 @@ using namespace std;
 #define LEFT 3
 
 //Task List Definition
-#define TASK_SCAN_A 1
-#define TASK_SCAN_B 2
-#define TASK_RETRACK 3
 #define TASK_WAITING 0
+#define TASK_GOTO_A 1
+#define TASK_SCAN_A 2
+#define TASK_GOTO_B 3
+#define TASK_SCAN_B 4
+#define TASK_DELIEVER 5
+#define TASK_GOTO_E7 6
+#define TASK_GOTO_E1 7
+#define TASK_GOTO_A5 8
+#define TASK_GOTO_A6 9
+#define TASK_RETRACK 10
 
 list<int> task_list; // store tasks to be executed
 
@@ -281,6 +288,7 @@ void BFS(Node* to_node){
     for (list<int>::iterator iter = min_op_list.begin(); iter != min_op_list.end(); iter++)
     {
         cout << (*iter) << " " ;
+        operation_list.push_back((*iter));
     }
     cout << endl;
 }
@@ -294,3 +302,26 @@ void FindRoute(Node* from_node, Node* to_node){
     
 }
 
+
+
+void InitNextTask(int task_id){
+    switch(task_id){
+        case -1:
+            //Empty
+            break;
+        case TASK_GOTO_E7:
+            FindRoute(current_node, &E7);
+            break;
+        case TASK_GOTO_E1:
+            FindRoute(current_node, &E1);
+            break;
+        case TASK_GOTO_A5:
+            FindRoute(current_node, &A5);
+            break;
+        case TASK_GOTO_A6:
+            FindRoute(current_node, &A6);
+            break;
+        default:
+            break;
+    }
+}

@@ -86,36 +86,36 @@ int main(int argc, const char * argv[]) {
     }
     
     //task initialization
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_A);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
-    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_WAITING);
+    task_list.push_back(TASK_GOTO_E7);
+    task_list.push_back(TASK_GOTO_E1);
+    task_list.push_back(TASK_GOTO_A5);
     
     //operation list initialization
-    operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(TURN_RIGHT);
-    operation_list.push_back(TURN_LEFT);
-    operation_list.push_back(GO_STRAIGHT);
-    operation_list.push_back(GO_STRAIGHT);
+    
     current_node = &F3;
     previous_node = &S2;
+    while(true){
+        if (operation_list.empty()){
+            NextTask();
+            // no next operation
+            if (GetTaskId() != -1){
+                // init next task
+                InitNextTask(GetTaskId());
+            }else{
+                // finish all tasks
+                return 0;
+            }
+        }else{
+            UpdateNode();
+        }
+    }
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
-    FindRoute(&S2, &E6);
-    current_direction.direction = RIGHT;
-    FindRoute(&E6, &E1);
-    current_direction.direction = DOWN;
-    FindRoute(&E1, &A1);
-    current_direction.direction = LEFT;
-    FindRoute(&A1, &A5);
-    current_direction.direction = RIGHT;
+    
     
     //Object Initialization
     InitializeObject("red", &OBJECT_RED, &B5);
