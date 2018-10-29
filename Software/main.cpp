@@ -165,7 +165,7 @@ void ObjectInitialization(){
     InitializeObject("green", &OBJECT_GREEN, &B5);
     InitializeObject("wood", &OBJECT_WOOD, &B6);
     InitializeObject("transparent", &OBJECT_TRANS, &B6);
-    InitializeObject("unkown", &OBJECT_UNKNOWN, NULL);
+    InitializeObject("unknown", &OBJECT_UNKNOWN, NULL);
  
     cout<<"Object Initialization completed."<<endl;
 }
@@ -328,6 +328,43 @@ void traverse(Node* destination){
         UpdateNode();
     }
 }
+
+void DetectObject(){
+    /*
+     This function recognize the object and setup LED display.
+     */
+    cout<<"Object Recognition: starting..."<<endl;
+    list<int> params;
+    for (int i = 0; i<RECOGNITION_SAMPLE_NUMBER; i++){
+        params.push_back(rlink.request(ADC1));
+    }
+    // change current object
+    current_object = ObjectRecognition(params);
+    cout<<"Object Recognition: Displaying..."<<endl;
+    switch (current_object->name){
+        case "red":
+            LedDisplayObject(LED_OBJECT_RED);
+            break;
+        case "green":
+            LedDisplayObject(LED_OBJECT_GREEN);
+            break;
+        case "white":
+            LedDisplayObject(LED_OBJECT_WHITE);
+            break;
+        case "wood":
+            LedDisplayObject(LED_OBJECT_WOOD);
+            break;
+        case "transparent":
+            LedDisplayObject(LED_OBJECT_TRANS);
+            break;
+        default:
+            LedDisplayObject(LED_OBJECT_UNKNOWN);
+            break;
+    }
+    // display LED
+    rlink.command(WRITE_PORT_7, LedReading());
+    cout<<"Object Recognition: finished."<<endl;
+}
 void TestIO(){
     //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
@@ -358,6 +395,7 @@ int main ()
         clamp.CloseClamp();
         clamp.ShrinkArm();
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+
         delay(3000);*/
         traverse(&E1);
  /*       while(true){

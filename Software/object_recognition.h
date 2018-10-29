@@ -79,6 +79,6 @@ Object* ObjectRecognition(list<int> params){
             max_object = this_object;
         }
     }
-    cout<<"ObjectRecognition: max: "<<max<< " of "<<max_object->name<<endl;
+    cout<<"Object Recognition: max: "<<max<< " of "<<max_object->name<<endl;
     return max_object;
 }

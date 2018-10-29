@@ -108,7 +108,14 @@ int main(int argc, const char * argv[]) {
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();
-    //FindRoute(&S2, &D6);
+    FindRoute(&S2, &E6);
+    current_direction.direction = RIGHT;
+    FindRoute(&E6, &E1);
+    current_direction.direction = DOWN;
+    FindRoute(&E1, &A1);
+    current_direction.direction = LEFT;
+    FindRoute(&A1, &A5);
+    current_direction.direction = RIGHT;
     
     //Object Initialization
     InitializeObject("red", &OBJECT_RED, &B5);
