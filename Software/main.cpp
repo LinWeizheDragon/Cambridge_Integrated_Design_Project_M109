@@ -408,6 +408,7 @@ int main ()
             }else{
                 // do traverse until operation_list is empty.
                 traverse();
+                // TODO: pickup and place logic here
             }
         }
         
