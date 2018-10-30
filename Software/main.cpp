@@ -17,6 +17,8 @@ int motor_common_speed = 127; //127 max
 int motor_passing_crosing_time = 300;
 int motor_pre_turing_time = 2400;
 int motor_middle_turing_time = 2700;
+int state = 0;
+string spcial_crossings[12] = {"D8", "E8", "E6", E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"}
 stopwatch watch;
 robot_link rlink;      // datatype for the robot link
 /*
@@ -179,32 +181,38 @@ void get_wheel_reading(void){
 }
 
 // four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
-int get_state(void){
+void get_state(void){
     get_wheel_reading();
     if (front_left_sensor_reading == 1){
         if (front_right_sensor_reading == 1){
             if (middle_sensor_reading == 1)
-                return 0; // on track
-            return -1; // head on track but body off track
+                state = 0; // on track
+            state = -1; // head on track but body off track
         }
         if (middle_sensor_reading == 1)
-            return 2; // deviation towards right
-        return 5; // large deviation towards right
+            state = 2; // deviation towards right
+        state = 5; // large deviation towards right
     }
     if (front_right_sensor_reading == 1){
         if (middle_sensor_reading == 1)
-            return 1; // deviation towards left
-        return 4; // large deviation towards left
+            state = 1; // deviation towards left
+        state = 4; // large deviation towards left
     }
     if (middle_sensor_reading == 1){
-        return 6; // large deviation
+        state = 6; // large deviation
     }
-    return 7; // very large deviation
+    state = 7; // very large deviation
 }
 
 void motor_control(int left_wheel_power, int right_wheel_power){
-    rlink.command(MOTOR_1_GO, left_wheel_power - 16);
-    rlink.command(MOTOR_2_GO, right_wheel_power + 128);
+    if (left_wheel_power < 128){
+        rlink.command(MOTOR_1_GO, left_wheel_power - 16);
+        rlink.command(MOTOR_2_GO, right_wheel_power + 128);
+    }
+    else{
+        rlink.command(MOTOR_1_GO, left_wheel_power);
+        rlink.command(MOTOR_2_GO, right_wheel_power - 128);
+    }
 }
 
 void motor_turn(int speed, int direction){ // -1 for left, 1 for right
@@ -238,27 +246,27 @@ void reposition(int direction){ // 0 for left, 1 for right
 	}
 }
 
-void line_following(int state, int motor_speed){ // 000 101 return the current state
+void line_following(int motor_speed, int mode, int adjustment){ // mode 0 for normal, 1 for strict, 2 for back
+    get_state();
+    if (mode == 2)
+        motor_speed += 128;
     if (state != previous_state){
         switch(state){
             case 1:
-                motor_control(motor_speed - adjustment_power_decrement, motor_speed);
+            case 4:
+                if (mode == 0)
+                    motor_control(motor_speed - adjustment, motor_speed);
+                else
+                    reposition(0);
                 break;
             case 2:
-                motor_control(motor_speed, motor_speed - adjustment_power_decrement);
-                break;
-            case 4:
-                motor_control(motor_speed - adjustment_power_decrement, motor_speed);
-                break;
             case 5:
-                motor_control(motor_speed, motor_speed - adjustment_power_decrement);
+                if (mode == 0)
+                    motor_control(motor_speed, motor_speed - adjustment);
+                else
+                    reposition(1);
                 break;
             case 6:
-				if (previous_state == 1 || previous_state == 4)
-					reposition(0);
-				else if(previous_state == 2 || previous_state == 5)
-					reposition(1);
-                break;
             case 7:
 				if (previous_state == 1 || previous_state == 4)
 					reposition(0);
@@ -270,6 +278,14 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
         }
     }
     previous_state = state;
+}
+
+bool find(string crossing){
+    for (int a = 0; a < 12; a++){
+        if (spcial_crossings[a] == crossing)
+            return true;
+    }
+    return false;
 }
 
 void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
@@ -286,7 +302,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
         while (etime < motor_pre_turing_time + (action_index + 1)*700){
             etime = watch.read();
         }
-        if (current_node -> name == "E1" || current_node -> name == "A1" || current_node -> name == "E6"){
+        if (find(current_node -> name)){
 			motor_control(motor_common_speed, motor_common_speed);
 			while (etime < motor_middle_turing_time + (action_index + 1)*700){
 				etime = watch.read();
@@ -304,7 +320,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 				get_wheel_reading();
 			motor_control(motor_common_speed, motor_common_speed);
 			while (back_sensor_reading == 1)
-				get_state();
+				get_wheel_reading();
 		}
         cout<<"turn complete"<<endl;
     }
@@ -315,16 +331,51 @@ void traverse(){
 	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
     while (!operation_list.empty()){
         int action_index = GetOperationId();
-        int state = get_state();
+        get_state();
         while (back_sensor_reading != 1){
-            line_following(state, motor_common_speed);
-            state = get_state();
+            line_following(motor_common_speed, 0, adjustment_power_decrement);
+            get_state();
         }
         cout<<"action:"<<action_index<<endl;
         crossing_action(action_index, motor_turning_speed);
         UpdateNode();
     }
 }
+
+void pick(void){
+    
+}
+
+void pick_line_action(void){
+    get_contact_switch();
+    get_state();
+    while (contact_switch == false){
+        line_following(motor_common_speed, 1, adjustment_power_decrement);
+        get_contact_switch();
+        if (back_sensor_reading == 1)
+            UpdateNode();
+    }
+    pick();
+}
+
+void get_some_put_signal(void){ // TO DO
+    
+}
+
+void put(void){
+    
+}
+
+void put_line_action(void){
+    get_some_put_signal();
+    get_state();
+    while (contact_switch == false){ // CAN BE SOME OTHER CONDITION
+        line_following(motor_common_speed, 1, adjustment_power_decrement);
+        get_contact_switch();
+    }
+    put();
+}
+
 
 void DetectObject(){
     /*
@@ -362,6 +413,7 @@ void DetectObject(){
     rlink.command(WRITE_PORT_7, LedReading());
     cout<<"Object Recognition: finished."<<endl;
 }
+
 void TestIO(){
     //rlink.command(WRITE_PORT_0, 0);
     stopwatch watch;
@@ -372,6 +424,17 @@ void TestIO(){
         ErrorHandling();
 	}
 }
+
+void line_test(void){
+    motor_control(motor_common_speed, motor_common_speed);
+    while(true){}
+}
+
+void turn_test(int direction){
+    motor_turn(motor_turning_speed, direction);
+    while(true){}
+}
+
 int main ()
 {
     MapInitialization();
