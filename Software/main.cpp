@@ -17,6 +17,7 @@ int motor_common_speed = 127; //127 max
 int motor_passing_crosing_time = 300;
 int motor_pre_turing_time = 2400;
 int motor_middle_turing_time = 2700;
+int last_led_reading = 0x00;
 stopwatch watch;
 robot_link rlink;      // datatype for the robot link
 /*
@@ -127,17 +128,18 @@ void TaskInitialization(){
     task_list.push_back(TASK_GOTO_A5);
     
     //operation list initialization
-    /*
-     *     operation_list.push_back(GO_STRAIGHT);
-    //operation_list.push_back(TURN_LEFT); 
     operation_list.push_back(GO_STRAIGHT);
     operation_list.push_back(GO_STRAIGHT);
-    //operation_list.push_back(TURN_RIGHT); 
+    operation_list.push_back(GO_STRAIGHT); 
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT);
+    operation_list.push_back(GO_STRAIGHT); 
     operation_list.push_back(GO_STRAIGHT);//*/
     
     ///////////Settings here////////////////////
-    current_node = &S2;
-    previous_node = &F1;
+    current_node = &E7;
+    previous_node = &E8;
+    current_direction.direction = DOWN;
     /*
     current_direction.direction = RIGHT;
     FindRoute(&S2, &E7);
@@ -273,6 +275,10 @@ void line_following(int state, int motor_speed){ // 000 101 return the current s
 }
 
 void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go left, 1: go right
+	if (action_index != 0){
+		LedDisplayOperation(LED_TURNING, true);
+		rlink.command(WRITE_PORT_7, LedReading());
+	}
     watch.start();
     int etime = watch.read();
     if (action_index == 0){
@@ -308,11 +314,15 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 		}
         cout<<"turn complete"<<endl;
     }
+    LedDisplayOperation(LED_TURNING, false);
+	rlink.command(WRITE_PORT_7, LedReading());
 }
 
 void traverse(){
 	rlink.command(RAMP_TIME, 0);
 	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
+	LedDisplayOperation(LED_FOLLOWING_LINE, true);
+	rlink.command(WRITE_PORT_7, LedReading());
     while (!operation_list.empty()){
         int action_index = GetOperationId();
         int state = get_state();
@@ -324,7 +334,10 @@ void traverse(){
         crossing_action(action_index, motor_turning_speed);
         UpdateNode();
     }
+    LedDisplayOperation(LED_FOLLOWING_LINE, false);
+	rlink.command(WRITE_PORT_7, LedReading());
 }
+
 
 void DetectObject(){
     /*
@@ -338,26 +351,29 @@ void DetectObject(){
     // change current object
     current_object = ObjectRecognition(params);
     cout<<"Object Recognition: Displaying..."<<endl;
-    switch (current_object->name){
-        case "red":
-            LedDisplayObject(LED_OBJECT_RED);
-            break;
-        case "green":
-            LedDisplayObject(LED_OBJECT_GREEN);
-            break;
-        case "white":
-            LedDisplayObject(LED_OBJECT_WHITE);
-            break;
-        case "wood":
-            LedDisplayObject(LED_OBJECT_WOOD);
-            break;
-        case "transparent":
-            LedDisplayObject(LED_OBJECT_TRANS);
-            break;
-        default:
-            LedDisplayObject(LED_OBJECT_UNKNOWN);
-            break;
-    }
+    string name = current_object->name;
+    if (name == "red"){
+		LedDisplayObject(LED_OBJECT_RED);
+	}
+	if (name == "green"){
+		LedDisplayObject(LED_OBJECT_GREEN);
+	}
+	if (name == "red"){
+		LedDisplayObject(LED_OBJECT_RED);
+	}
+	if (name == "white"){
+		LedDisplayObject(LED_OBJECT_WHITE);
+	}
+	if (name == "wood"){
+		LedDisplayObject(LED_OBJECT_WOOD);
+	}
+	if (name == "transparent"){
+		LedDisplayObject(LED_OBJECT_TRANS);
+	}
+	if (name == "unknown"){
+		LedDisplayObject(LED_OBJECT_NONE);
+	}
+	
     // display LED
     rlink.command(WRITE_PORT_7, LedReading());
     cout<<"Object Recognition: finished."<<endl;
@@ -367,9 +383,13 @@ void TestIO(){
     stopwatch watch;
     watch.start();
     while(true){
-			int v=rlink.request (READ_PORT_0);
+		int a;
+		cin>>a;
+		for (int i = 0; i<a; i++){
+			int v=rlink.request (ADC1);
 			cout << "time:" << watch.read() << "\tValue="  <<v << endl;
-        ErrorHandling();
+		}
+        ErrorHandling() ;
 	}
 }
 int main ()
@@ -387,6 +407,7 @@ int main ()
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
         cout << "Test passed" << endl;
+        traverse();
         /*
         int v=rlink.request (READ_PORT_0);
         clamp.CloseClamp();
@@ -394,7 +415,7 @@ int main ()
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 
         delay(3000);*/
-        while (true){
+        /*while (true){
             if (operation_list.empty()){
                 NextTask();
                 // no next operation
@@ -403,14 +424,15 @@ int main ()
                     InitNextTask(GetTaskId());
                 }else{
                     // finish all tasks
-                    return;
+                    return 0;
                 }
             }else{
                 // do traverse until operation_list is empty.
                 traverse();
+                rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
                 // TODO: pickup and place logic here
             }
-        }
+        }*/
         
  /*       while(true){
           int aa;
