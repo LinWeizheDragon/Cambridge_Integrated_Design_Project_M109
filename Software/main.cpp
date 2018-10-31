@@ -591,7 +591,7 @@ int main ()
     }
     val = rlink.request (TEST_INSTRUCTION); // send test instruction
     if (val == TEST_INSTRUCTION_RESULT) {   // check result
-        cout << "Test passed" << endl;
+        cout << "Connected..." << endl;
         //TestPick();
         //traverse();
         /*
@@ -603,6 +603,7 @@ int main ()
         //delay(3000);
         //TestPick();
 //        TestIO();
+        /*
         while (true){
             if (operation_list.empty()){
                 NextTask();
@@ -616,11 +617,12 @@ int main ()
                 }
             }else{
                 // do traverse until operation_list is empty.
+                
                 traverse();
                 rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
                 // TODO: pickup and place logic here
             }
-        }
+        }//*/
         
  /*       while(true){
           int aa;

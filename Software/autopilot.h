@@ -39,6 +39,11 @@ list<int> task_list; // store tasks to be executed
 
 list<int> operation_list; // stores operations to be executed
 
+#define MODE_SCANNING 1
+#define MODE_NOT_SCANNING 0
+#define MODE_DELIEVER 2
+int scan_mode = MODE_NOT_SCANNING;
+
 //Error Code Definition
 #define ERROR_LOSE_WAY 0
 #define ERROR_PICKUP_FAIL 1
@@ -320,6 +325,7 @@ void FindRoute(Node* from_node, Node* to_node){
 }
 
 void InitNextTask(int task_id){
+    scan_mode = MODE_NOT_SCANNING;
     switch(task_id){
         case -1:
             //Empty
@@ -336,6 +342,15 @@ void InitNextTask(int task_id){
         case TASK_GOTO_A6:
             FindRoute(current_node, &A6);
             break;
+        case TASK_SCAN_A:
+            scan_mode = MODE_SCANNING;
+            FindRoute(current_node, &E1);
+        case TASK_SCAN_B:
+            scan_mode = MODE_SCANNING;
+            FindRoute(current_node, &A1);
+        case TASK_DELIEVER:
+            scan_mode = MODE_DELIEVER;
+            FindRoute(current_node, &A5);
         default:
             break;
     }
