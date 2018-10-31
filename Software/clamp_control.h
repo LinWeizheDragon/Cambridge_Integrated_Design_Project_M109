@@ -35,7 +35,7 @@ public:
         if (v bitand 0x80){
             v = v - 0x80;
         }
-        if (this->clamp_status == CLAMP_OPEN){
+        if (this->clamp_status == CLAMP_CLOSED){
             v = v + 0x20;
         }
         if (this->arm_status == ARM_EXTENDED){
