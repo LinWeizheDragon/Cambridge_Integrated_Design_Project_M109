@@ -23,7 +23,7 @@ using namespace std;
 #define TASK_GOTO_A5 8
 #define TASK_GOTO_A6 9
 #define TASK_RETRACK 10
-
+#define TASK_GOTO_A1 11
 
 list<int> task_list; // store tasks to be executed
 
@@ -342,15 +342,21 @@ void InitNextTask(int task_id){
         case TASK_GOTO_A6:
             FindRoute(current_node, &A6);
             break;
+        case TASK_GOTO_A1:
+			FindRoute(current_node, &A1);
+			break;
         case TASK_SCAN_A:
             scan_mode = MODE_SCANNING;
             FindRoute(current_node, &E1);
+            break;
         case TASK_SCAN_B:
             scan_mode = MODE_SCANNING;
             FindRoute(current_node, &A1);
+            break;
         case TASK_DELIEVER:
             scan_mode = MODE_DELIEVER;
             FindRoute(current_node, &A5);
+            break;
         default:
             break;
     }

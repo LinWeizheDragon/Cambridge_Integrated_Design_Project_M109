@@ -18,7 +18,7 @@ Object* current_object;
  Function to recognize the object
  Get RECOGNITION_SAMPLE_NUMBER samples and take the most frequent one.
  */
-Object* ObjectRecognition(list<int> params){
+Object* ObjectRecognition(list<int> params, int mean_distance, int stack_num){
     // map to store samples
     map<Object*, int>samples;
     
@@ -36,10 +36,54 @@ Object* ObjectRecognition(list<int> params){
         samples[this_object] = 0; // default value is 0
         cout<<(*it)->name<<endl;
     }
+    cout<<"mean distance:"<<mean_distance<<endl;
     for (list<int>::iterator it = params.begin(); it != params.end(); it++){
 		int v = (*it);
 		cout<<v<<" ";
-		
+		bool found=false;
+		if (v >= 30 && v<=50){
+			// white or wood
+			if (stack_num == 1){
+				if (mean_distance>=155){
+					samples[&OBJECT_WOOD] +=1;
+				}else{
+					samples[&OBJECT_WHITE] +=1;
+				}
+			}else{
+				if (mean_distance<=135){
+					samples[&OBJECT_WOOD] +=1;
+				}else{
+					samples[&OBJECT_WHITE] +=1;
+				}
+			}
+			found = true;
+		}
+		if (v >=150){
+			samples[&OBJECT_GREEN] +=1;
+			found = true;
+		}
+		if (v>=60 && v<=120){
+			//red or transparent
+			if (stack_num == 1){
+				if (mean_distance>=145){
+					samples[&OBJECT_RED] +=1;
+				}else{
+					samples[&OBJECT_TRANS] +=1;
+				}
+			}else{
+				if (mean_distance>=145){
+					samples[&OBJECT_RED] +=1;
+				}else{
+					samples[&OBJECT_TRANS] +=1;
+				}
+			}
+			found = true;
+		}
+		// unknown
+		if (!found){
+			samples[&OBJECT_UNKNOWN] += 1;
+		}
+		/*
 		if (v >=170){
 			samples[&OBJECT_UNKNOWN] += 1;
 		}
@@ -62,7 +106,7 @@ Object* ObjectRecognition(list<int> params){
 		}
 		else{
 			samples[&OBJECT_UNKNOWN] += 1;
-		}
+		}*/
 	}
     
     
