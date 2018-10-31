@@ -18,7 +18,7 @@ int motor_passing_crosing_time = 300;
 int motor_pre_turing_time = 2400;
 int motor_middle_turing_time = 2700;
 int state = 0;
-string spcial_crossings[12] = {"D8", "E8", "E6", E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"}
+string spcial_crossings[12] = {"D8", "E8", "E6", "E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"}
 stopwatch watch;
 robot_link rlink;      // datatype for the robot link
 /*
@@ -425,6 +425,8 @@ void TestIO(){
 	}
 }
 
+
+    
 void line_test(void){
     motor_control(motor_common_speed, motor_common_speed);
     while(true){}
@@ -435,6 +437,39 @@ void turn_test(int direction){
     while(true){}
 }
 
+void TestPick(){
+    clamp.ExtendArm();
+    clamp.OpenClamp();
+    int v = rlink.request(READ_PORT_0);
+    rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+    
+    int distance_value = -1;
+    bool found = false;
+    while (!found){
+        distance_value = rlink.request(ADC2);
+        if (distance_value < 160){
+            int mean_value = 0;
+            for (int i = 0; i < 50; i++){
+                mean_value += rlink.request(ADC2);
+            }
+            mean_value = mean_value / 50;
+            if (mean_value < 160){
+                found = true;
+            }
+        }
+    }
+    if (found){
+        clamp.CloseClamp();
+        v = rlink.request(READ_PORT_0);
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+        delay(3000);
+        clamp.ShrinkArm();
+        v = rlink.request(READ_PORT_0);
+        rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+        delay(2000);
+        DetectObject();
+    }
+}
 int main ()
 {
     MapInitialization();
