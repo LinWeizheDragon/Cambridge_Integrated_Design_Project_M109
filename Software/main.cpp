@@ -453,7 +453,9 @@ void TestPick(){
                 mean_value += rlink.request(ADC2);
             }
             mean_value = mean_value / 50;
+            cout<<"mean value: "<<mean_value<<endl;
             if (mean_value < 160){
+                cout<<"object found!"<<endl;
                 found = true;
             }
         }
