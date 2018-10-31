@@ -396,7 +396,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 
 void traverse(){
 	rlink.command(RAMP_TIME, 0);
-	rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
+	//rlink.command(BOTH_MOTORS_GO_OPPOSITE, motor_common_speed);
 	LedDisplayOperation(LED_FOLLOWING_LINE, true);
 	rlink.command(WRITE_PORT_7, LedReading());
     while (!operation_list.empty()){
@@ -481,8 +481,6 @@ void pick_line_action(void){
         }
     }
     hault();
-	int a;
-	cin>>a;
 		
     clamp.OpenClamp();
     v = rlink.request(READ_PORT_0);
