@@ -93,8 +93,11 @@ int main(int argc, const char * argv[]) {
     
     //operation list initialization
     
-    current_node = &F3;
-    previous_node = &S2;
+    current_node = &S2;
+    previous_node = &F1;
+    current_direction.direction = RIGHT;
+    FindRoute(&S2, &E7);
+    /*
     while(true){
         if (operation_list.empty()){
             NextTask();
@@ -109,7 +112,8 @@ int main(int argc, const char * argv[]) {
         }else{
             UpdateNode();
         }
-    }
+    }*/
+    
     //UpdateNode();
     //UpdateNode();
     //UpdateNode();

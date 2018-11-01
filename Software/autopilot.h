@@ -24,8 +24,9 @@ using namespace std;
 #define TASK_GOTO_A6 9
 #define TASK_RETRACK 10
 #define TASK_GOTO_A1 11
-#define TASK_DELIVER_C1 12
-#define TASK_DELIVER_C2 13
+#define TASK_DELIVER_D1 12
+#define TASK_DELIVER_D2 13
+#define TASK_GOBACK 14
 
 list<int> task_list; // store tasks to be executed
 
@@ -44,8 +45,8 @@ list<int> operation_list; // stores operations to be executed
 #define MODE_SCANNING_A 1
 #define MODE_SCANNING_B 2
 #define MODE_NOT_SCANNING 0
-#define MODE_DELIVER_C1 3
-#define MODE_DELIVER_C2 4
+#define MODE_DELIVER_D1 3
+#define MODE_DELIVER_D2 4
 int scan_mode = MODE_NOT_SCANNING;
 
 
@@ -220,6 +221,10 @@ bool VerrifyQueue(list<Node*> target_list){
                 //cout<<"new operation: "<<operation_value<<" at "<<last_node->name<<endl;
                 
                 // operations that can't be conducted
+                if (operation_value == 2){
+                    // no turn back
+                    return false;
+                }
                 if (operation_value == TURN_LEFT && last_node->name == "A1" && new_direction == RIGHT){
                     return false;
                 }
@@ -357,13 +362,15 @@ void InitNextTask(int task_id){
             scan_mode = MODE_SCANNING_B;
             FindRoute(current_node, &A1);
             break;
-        case TASK_DELIVER_C1:
-            scan_mode = MODE_DELIVER_C1;
+        case TASK_DELIVER_D1:
+            scan_mode = MODE_DELIVER_D1;
             FindRoute(current_node, &A5);
             break;
-        case TASK_DELIVER_C2:
-            scan_mode = MODE_DELIVER_C2;
+        case TASK_DELIVER_D2:
+            scan_mode = MODE_DELIVER_D2;
             FindRoute(current_node, &A7);
+        case TASK_GOBACK:
+            FindRoute(current_node, &F1);
         default:
             break;
     }

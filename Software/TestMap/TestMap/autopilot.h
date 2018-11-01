@@ -193,7 +193,9 @@ bool VerrifyQueue(list<Node*> target_list){
                 if (operation_value == -2)
                     operation_value = 2;
                 //cout<<"new operation: "<<operation_value<<" at "<<last_node->name<<endl;
-                
+                if (operation_value == 2){
+                    return false;
+                }
                 // operations that can't be conducted
                 if (operation_value == TURN_LEFT && last_node->name == "A1" && new_direction == RIGHT){
                     return false;

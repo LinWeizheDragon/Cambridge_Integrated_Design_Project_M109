@@ -24,6 +24,8 @@ int item_to_pick_1 = 5;
 
 int item_picked_A = 0;
 int item_picked_B = 2;
+int item_placed_D1 = 0;
+int item_placed_D2 = 0;
 
 string spcial_crossings[12] = {"D8", "E8", "E6", "E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"};
 
@@ -561,12 +563,20 @@ void place_line_action(){
     hault();
     watch.start();
     int etime = watch.read();
-    while(etime < 1000){ // some time tested later
+    int ref_time = 1000;
+    
+    while(etime < ref_time){ // some time tested later
         motor_control(motor_common_speed+128, motor_common_speed+128);
         etime = watch.read();
     }
     hault();
     put();
+    if (scan_mode == MODE_DELIVER_D1){
+        item_placed_D1 += 1;
+    }else if (scan_mode == MODE_DELIVER_D2){
+        item_placed_D2 += 1;
+    }
+    
 }
 
 
@@ -688,7 +698,7 @@ int main ()
 
         while (true){
             if (operation_list.empty()){
-				cout<<"Next Task!!!!!"<<endl;
+				cout<<"Next Task..."<<endl;
                 NextTask();
                 int task_id = GetTaskId();
                 // no next operation
@@ -696,26 +706,41 @@ int main ()
                     // init next task
                     if (task_id != TASK_DELIVER){
                         InitNextTask(task_id);
+                        if (task_id == TASK_SCAN_A){
+                            LedDisplayTask(LED_SCAN_C1);
+                        }else{
+                            LedDisplayTask(LED_SCAN_C2);
+                        }
                     }else{
 						if (current_object->name == "red"){
-							InitNextTask(TASK_DELIVER_C1);
+							InitNextTask(TASK_DELIVER_D1);
+                            LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "transparent"){
-							InitNextTask(TASK_DELIVER_C1);
+							InitNextTask(TASK_DELIVER_D1);
+                            LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "white"){
-							InitNextTask(TASK_DELIVER_C2);
+							InitNextTask(TASK_DELIVER_D2);
+                            LedDisplayTask(LED_GOTO_D2);
 						}else if (current_object->name == "green"){
-							InitNextTask(TASK_DELIVER_C2);
+							InitNextTask(TASK_DELIVER_D2);
+                            LedDisplayTask(LED_GOTO_D2);
 						}else if (current_object->name == "wood"){
-							InitNextTask(TASK_DELIVER_C1);
+							InitNextTask(TASK_DELIVER_D1);
+                            LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "unknown"){
-							InitNextTask(TASK_DELIVER_C1);
+							InitNextTask(TASK_DELIVER_D1);
+                            LedDisplayTask(LED_GOTO_D1);
 						}else{
-							InitNextTask(TASK_DELIVER_C1);
+							InitNextTask(TASK_DELIVER_D1);
+                            LedDisplayTask(LED_GOTO_D1);
 						}
                     }
-                    cout<<"New Task ready"<<endl;
+                    // Task LED Display
+                    rlink.command(WRITE_PORT_7, LedReading());
+                    cout<<"New Task ready..."<<endl;
                 }else{
                     // finish all tasks
+                    cout<<"All tasks finished."<<endl;
                     return 0;
                 }
             }else{
@@ -732,14 +757,13 @@ int main ()
                     pick_line_action(item_picked_B);
                     item_picked_B++;
 				}
-				else if (scan_mode == MODE_DELIVER_C1){
+				else if (scan_mode == MODE_DELIVER_D1){
 					place_line_action();
 				}
-				else if (scan_mode == MODE_DELIVER_C2){
+				else if (scan_mode == MODE_DELIVER_D2){
 					place_line_action();
 				}
                 rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
-                // TODO: pickup and place logic here
             }
         }
         
