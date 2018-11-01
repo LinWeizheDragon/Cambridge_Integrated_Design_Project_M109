@@ -20,7 +20,6 @@ int motor_middle_turing_time = 2700;
 int state = 0;
 int item_to_pick_1 = 5;
 int item_picked = 0;
-int crossings_passed = 0;
 
 string spcial_crossings[12] = {"D8", "E8", "E6", "E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"};
 
@@ -412,6 +411,7 @@ void pick(void){
 }
 
 void pick_line_action(void){
+    int crossings_passed = 0;
 	bool distance_sensor_activated = false;
 	clamp.OpenClamp();
 	int v = rlink.request(READ_PORT_0);
@@ -611,10 +611,15 @@ int main ()
             if (operation_list.empty()){
 				cout<<"Next Task!!!!!"<<endl;
                 NextTask();
+                int task_id = GetTaskId();
                 // no next operation
-                if (GetTaskId() != -1){
+                if (task_id != -1){
                     // init next task
-                    InitNextTask(GetTaskId());
+                    if (task_id != TASK_DELIVER){
+                        InitNextTask(task_id);
+                    }else{
+                        InitNextTask(TASK_DELIVER_C1);
+                    }
                     cout<<"New Task ready"<<endl;
                 }else{
                     // finish all tasks

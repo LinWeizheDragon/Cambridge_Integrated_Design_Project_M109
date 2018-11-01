@@ -24,6 +24,8 @@ using namespace std;
 #define TASK_GOTO_A6 9
 #define TASK_RETRACK 10
 #define TASK_GOTO_A1 11
+#define TASK_DELIVER_C1 12
+#define TASK_DELIVER_C2 13
 
 list<int> task_list; // store tasks to be executed
 
@@ -39,10 +41,13 @@ list<int> task_list; // store tasks to be executed
 
 list<int> operation_list; // stores operations to be executed
 
-#define MODE_SCANNING 1
+#define MODE_SCANNING_A 1
+#define MODE_SCANNING_B 2
 #define MODE_NOT_SCANNING 0
-#define MODE_DELIEVER 2
+#define MODE_DELIVER_C1 3
+#define MODE_DELIVER_C2 4
 int scan_mode = MODE_NOT_SCANNING;
+
 
 //Error Code Definition
 #define ERROR_LOSE_WAY 0
@@ -346,17 +351,20 @@ void InitNextTask(int task_id){
 			FindRoute(current_node, &A1);
 			break;
         case TASK_SCAN_A:
-            scan_mode = MODE_SCANNING;
+            scan_mode = MODE_SCANNING_A;
             FindRoute(current_node, &E1);
             break;
         case TASK_SCAN_B:
-            scan_mode = MODE_SCANNING;
+            scan_mode = MODE_SCANNING_B;
             FindRoute(current_node, &A1);
             break;
-        case TASK_DELIEVER:
-            scan_mode = MODE_DELIEVER;
+        case TASK_DELIVER_C1:
+            scan_mode = MODE_DELIVER_C1;
             FindRoute(current_node, &A5);
             break;
+        case TASK_DELIVER_C2:
+            scan_mode = MODE_DELIVER_C2;
+            FindRoute(current_node, &A6);
         default:
             break;
     }
