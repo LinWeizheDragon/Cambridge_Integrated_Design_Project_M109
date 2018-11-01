@@ -17,7 +17,7 @@ using namespace std;
 #define TASK_SCAN_A 2
 #define TASK_GOTO_B 3
 #define TASK_SCAN_B 4
-#define TASK_DELIEVER 5
+#define TASK_DELIVER 5
 #define TASK_GOTO_E7 6
 #define TASK_GOTO_E1 7
 #define TASK_GOTO_A5 8
@@ -164,7 +164,6 @@ void UpdateNode(){
 
 
 int front_left_sensor_reading, front_right_sensor_reading, middle_sensor_reading, back_sensor_reading;
-int previous_state = 0;
 
 list< list<Node*> > queue;
 
@@ -364,7 +363,7 @@ void InitNextTask(int task_id){
             break;
         case TASK_DELIVER_C2:
             scan_mode = MODE_DELIVER_C2;
-            FindRoute(current_node, &A6);
+            FindRoute(current_node, &A7);
         default:
             break;
     }

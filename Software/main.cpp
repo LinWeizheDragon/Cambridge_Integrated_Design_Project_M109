@@ -15,13 +15,15 @@ int motor_turning_speed = 75;
 int adjustment_power_decrement = 5;
 int motor_common_speed = 127; //127 max
 int motor_passing_crosing_time = 300;
-int motor_pre_turing_time = 2600;
+int motor_pre_turing_time = 1600;
 int motor_middle_turing_time = 2700;
 int state = 0;
+int previous_state = 0;
+bool motor_stop_recover = false;
 int item_to_pick_1 = 5;
 
 int item_picked_A = 0;
-int item_picked_B = 0;
+int item_picked_B = 2;
 
 string spcial_crossings[12] = {"D8", "E8", "E6", "E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"};
 
@@ -130,8 +132,19 @@ void MapInitialization(){
 void TaskInitialization(){
     //task initialization
     task_list.push_back(TASK_WAITING);
-    task_list.push_back(TASK_GOTO_E7);
-    task_list.push_back(TASK_SCAN_A);
+    //task_list.push_back(TASK_GOTO_E7);
+    //task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_GOTO_E1);
+    task_list.push_back(TASK_SCAN_B);
+    //task_list.push_back(TASK_DELIVER);
+    
+    //task_list.push_back(TASK_GOTO_E7);
+    //task_list.push_back(TASK_SCAN_A);
+    //task_list.push_back(TASK_GOTO_E1);
+    //task_list.push_back(TASK_SCAN_B);
+    //task_list.push_back(TASK_DELIVER);
+    
+    //task_list.push_back(TASK_GOTO_E7);
     
     //operation list initialization
     
@@ -148,9 +161,9 @@ void TaskInitialization(){
     //operation_list.push_back(GO_STRAIGHT);//*/
     
     ///////////Settings here////////////////////
-    current_node = &D7;
-    previous_node = &B7;
-    current_direction.direction = RIGHT;
+    current_node = &E2;
+    previous_node = &E3;
+    current_direction.direction = DOWN;
     /*
     current_direction.direction = RIGHT;
     FindRoute(&S2, &E7);
@@ -193,7 +206,10 @@ void get_wheel_reading(void){
 
 // four light sensors, 0 at front left, 1 at front right, 2 at middle, 3 at the back off the line
 void get_state(void){
-    get_wheel_reading();
+	if (rlink.request(MOTOR_1) == 0 && rlink.request(MOTOR_2) == 0){
+		motor_stop_recover = true;
+	}
+	get_wheel_reading();
     if (front_left_sensor_reading == 1){
         if (front_right_sensor_reading == 1){
             if (middle_sensor_reading == 1)
@@ -259,6 +275,8 @@ void reposition(int direction){ // 0 for left, 1 for right
 	}
     while (true){
 		get_wheel_reading();
+		if(back_sensor_reading == 1)
+			break;
 		if(front_left_sensor_reading == 1 && direction == 0)
 			break;
 		else if (front_right_sensor_reading == 1 && direction == 1)
@@ -270,10 +288,14 @@ void line_following(int motor_speed, int mode, int adjustment){ // mode 0 for no
     get_state();
     if (mode == 2)
         motor_speed += 128;
-    if (state != previous_state){
+    if (state != previous_state || motor_stop_recover == true){
+		if (motor_stop_recover){
+			cout<<"recovering from no speed.."<<endl;
+			motor_stop_recover = false;
+		}
 		switch(state){
             case 1:
-                if (mode == 0)
+                if (mode != 1)
                     motor_control(motor_speed - adjustment, motor_speed);
                 else
                     reposition(0);
@@ -282,7 +304,7 @@ void line_following(int motor_speed, int mode, int adjustment){ // mode 0 for no
                 reposition(0);
                 break;
             case 2:
-                if (mode == 0)
+                if (mode != 1)
                     motor_control(motor_speed, motor_speed - adjustment);
                 else
                     reposition(1);
@@ -329,7 +351,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
     else{
         motor_turn(turning_speed, action_index);
         if (current_node -> name == "A1")
-			while (etime < motor_pre_turing_time + (action_index+1) * 600)
+			while (etime < motor_pre_turing_time + (action_index+1) * 1000)
 				etime = watch.read();
         else
 			while (etime < motor_pre_turing_time)
@@ -418,6 +440,7 @@ void pick_line_action(int item_picked){
 	v = rlink.request(READ_PORT_0);
 	rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 
+	cout<<"picking the "<<(item_picked + 1)<<" item"<<endl;
     while (!operation_list.empty()){
 		get_wheel_reading();
 		if (clamp.clamp_status == CLAMP_OPEN){
@@ -425,25 +448,22 @@ void pick_line_action(int item_picked){
 			bool found = false;
 			if (distance_sensor_activated == true){
 				
-				
+				cout<<"!!!!!!!"<<current_node->name<<" "<<crossings_passed<<endl;
 				if (crossings_passed > item_picked){
 					cout<<"detect a junction, do it"<<endl;
 					found = true;
-					item_picked += 1;
 				}
-				if (item_picked == 5)
-					item_picked = 0;
 				
 				distance_value = rlink.request(ADC2);
 				cout<<"distance: "<<distance_value<<endl;
-				if (distance_value < 155){
+				if (distance_value < 156){
 					int mean_value = 0;
 					for (int i = 0; i < 50; i++){
 						mean_value += rlink.request(ADC2);
 					}
 					mean_value = mean_value / 50;
 					cout<<"mean value: "<<mean_value<<endl;
-					if (mean_value < 155){
+					if (mean_value < 156){
 						cout<<"object found!"<<endl;
 						found = true;
 					}
@@ -458,7 +478,11 @@ void pick_line_action(int item_picked){
 					v = rlink.request(READ_PORT_0);
 					rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 					delay(5000);
-					DetectObject(1);
+					if (scan_mode == MODE_SCANNING_A){
+						DetectObject(1);
+					}else{
+						DetectObject(2);
+					}
 				}
 				
 			}
@@ -471,33 +495,81 @@ void pick_line_action(int item_picked){
 			crossing_action(action_index, motor_turning_speed);
 			UpdateNode();
 			if (distance_sensor_activated == true){
-				crossings_passed += 1;
+				if (scan_mode == MODE_SCANNING_A){
+					crossings_passed+=1;
+				}else{
+					if (current_node->name != "C1" && current_node->name != "D1"){
+						crossings_passed+=2;
+					}
+					if (crossings_passed > item_picked){
+						cout<<"last junction, do it"<<endl;
+						hault();
+						clamp.CloseClamp();
+						v = rlink.request(READ_PORT_0);
+						rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+						delay(3000);
+						clamp.ShrinkArm();
+						v = rlink.request(READ_PORT_0);
+						rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+						delay(5000);
+						if (scan_mode == MODE_SCANNING_A){
+							DetectObject(1);
+						}else{
+							DetectObject(2);
+						}
+					}
+				}
+					
 			}
+			cout<<"//////////////////"<<crossings_passed<<endl;
 		}
-        if (current_node->name == "E5" && distance_sensor_activated == false){
+		
+        if (current_node->name == "E5" && distance_sensor_activated == false && scan_mode == MODE_SCANNING_A){
+			cout<<"distance sensor activated!"<<endl;
+			distance_sensor_activated = true;
+			crossings_passed += 1;
+		}
+		if (current_node->name == "B1" && distance_sensor_activated == false && scan_mode == MODE_SCANNING_B){
 			cout<<"distance sensor activated!"<<endl;
 			distance_sensor_activated = true;
 			crossings_passed += 1;
 		}
 	}
 }
+void put(void){
+    cout<<"put"<<endl;
+    clamp.ExtendArm();
+    int v = rlink.request(READ_PORT_0);
+    rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+    delay(2000);
+    clamp.OpenClamp();
+    v = rlink.request(READ_PORT_0);
+    rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+    delay(1000);
+    clamp.ShrinkArm();
+    v = rlink.request(READ_PORT_0);
+    rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+    delay(3000);
+}
 
 void place_line_action(){
+	traverse();
+	cout<<"place line action starts"<<endl;
+	get_wheel_reading();
     while(back_sensor_reading == 0)
         line_following(motor_common_speed, 0, adjustment_power_decrement);
+    hault();
     watch.start();
     int etime = watch.read();
     while(etime < 1000){ // some time tested later
-        line_following(motor_common_speed, 2, -adjustment_power_decrement)
+        motor_control(motor_common_speed+128, motor_common_speed+128);
         etime = watch.read();
     }
+    hault();
     put();
 }
 
 
-void put(void){
-    
-}
 
 void TestIO(){
     //rlink.command(WRITE_PORT_0, 0);
@@ -525,7 +597,18 @@ void turn_test(int direction){
     motor_turn(motor_turning_speed, direction);
     while(true){}
 }
-
+void TestArm(){
+	while(true){
+		clamp.ExtendArm();
+		int v = rlink.request(READ_PORT_0);
+		rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+		delay(2000);
+		clamp.ShrinkArm();
+		v = rlink.request(READ_PORT_0);
+		rlink.command(WRITE_PORT_0, clamp.GetReading(v));
+		delay(2000);
+	}
+}
 void TestPick(){
 	clamp.OpenClamp();
     int v = rlink.request(READ_PORT_0);
@@ -546,14 +629,14 @@ void TestPick(){
 		}
         distance_value = rlink.request(ADC2);
         cout<<"distance: "<<distance_value<<endl;
-        if (distance_value < 155){
+        if (distance_value < 150){
             int mean_value = 0;
             for (int i = 0; i < 200; i++){
                 mean_value += rlink.request(ADC2);
             }
             mean_value = mean_value / 200;
             cout<<"mean value: "<<mean_value<<endl;
-            if (mean_value < 155){
+            if (mean_value < 150){
                 cout<<"object found!"<<endl;
                 found = true;
             }
@@ -589,19 +672,20 @@ int main ()
         cout << "Connected..." << endl;
         //TestPick();
         //traverse();
-        
+        //TestIO();
         int v=rlink.request (READ_PORT_0);
         clamp.OpenClamp();
         clamp.ShrinkArm();
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 
         delay(3000);
+        //TestArm();
         int a;
         cin>>a;
 		         //*/
         //TestPick();
         //TestIO();
-        
+
         while (true){
             if (operation_list.empty()){
 				cout<<"Next Task!!!!!"<<endl;
@@ -613,7 +697,21 @@ int main ()
                     if (task_id != TASK_DELIVER){
                         InitNextTask(task_id);
                     }else{
-                        InitNextTask(TASK_DELIVER_C1);
+						if (current_object->name == "red"){
+							InitNextTask(TASK_DELIVER_C1);
+						}else if (current_object->name == "transparent"){
+							InitNextTask(TASK_DELIVER_C1);
+						}else if (current_object->name == "white"){
+							InitNextTask(TASK_DELIVER_C2);
+						}else if (current_object->name == "green"){
+							InitNextTask(TASK_DELIVER_C2);
+						}else if (current_object->name == "wood"){
+							InitNextTask(TASK_DELIVER_C1);
+						}else if (current_object->name == "unknown"){
+							InitNextTask(TASK_DELIVER_C1);
+						}else{
+							InitNextTask(TASK_DELIVER_C1);
+						}
                     }
                     cout<<"New Task ready"<<endl;
                 }else{
@@ -633,7 +731,13 @@ int main ()
                 else if (scan_mode == MODE_SCANNING_B){
                     pick_line_action(item_picked_B);
                     item_picked_B++;
-                }
+				}
+				else if (scan_mode == MODE_DELIVER_C1){
+					place_line_action();
+				}
+				else if (scan_mode == MODE_DELIVER_C2){
+					place_line_action();
+				}
                 rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
                 // TODO: pickup and place logic here
             }

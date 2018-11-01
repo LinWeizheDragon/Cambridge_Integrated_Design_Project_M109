@@ -57,7 +57,6 @@ void OutputBinary(int reading){
     cout<<endl;
 }
 int LedReading(){
-    cout<<led_value_operation<<" "<<led_value_task<<" "<<led_value_object<<endl;
     return ((0x07 - led_value_operation) | ((0x03 - led_value_task) << 3) | ((0x07 - led_value_object) << 5));
 }
 void LedDisplayOperation(int led_type, bool led_switch){
@@ -72,13 +71,13 @@ void LedDisplayOperation(int led_type, bool led_switch){
             led_value_operation = led_value_operation ^ led_type;
         }
     }
-    cout<<"Operation LED set to: ";
+    /*
     for (int i = 0; i<3; i++){
         if (led_value_operation & (0x01 << i))
             cout<<1;
         else
             cout<<0;
-    }
+    }*/
     cout<<endl;
 }
 void LedDisplayTask(int led_type){

@@ -65,13 +65,13 @@ Object* ObjectRecognition(list<int> params, int mean_distance, int stack_num){
 		if (v>=60 && v<=120){
 			//red or transparent
 			if (stack_num == 1){
-				if (mean_distance>=145){
+				if (mean_distance>=149){
 					samples[&OBJECT_RED] +=1;
 				}else{
 					samples[&OBJECT_TRANS] +=1;
 				}
 			}else{
-				if (mean_distance>=145){
+				if (mean_distance>=149){
 					samples[&OBJECT_RED] +=1;
 				}else{
 					samples[&OBJECT_TRANS] +=1;
