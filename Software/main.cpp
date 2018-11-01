@@ -19,7 +19,9 @@ int motor_pre_turing_time = 2600;
 int motor_middle_turing_time = 2700;
 int state = 0;
 int item_to_pick_1 = 5;
-int item_picked = 0;
+
+int item_picked_A = 0;
+int item_picked_B = 0;
 
 string spcial_crossings[12] = {"D8", "E8", "E6", "E5", "E4", "E3", "E2", "E1", "D1", "C1", "B1", "A1"};
 
@@ -406,11 +408,7 @@ void DetectObject(int num){
     cout<<"Object Recognition: finished."<<endl;
 }
 
-void pick(void){
-    
-}
-
-void pick_line_action(void){
+void pick_line_action(int item_picked){
     int crossings_passed = 0;
 	bool distance_sensor_activated = false;
 	clamp.OpenClamp();
@@ -466,7 +464,6 @@ void pick_line_action(void){
 			}
 		}
 		
-	
         int action_index = GetOperationId();
         get_wheel_reading();
         line_following(motor_common_speed, 0, adjustment_power_decrement);
@@ -485,24 +482,22 @@ void pick_line_action(void){
 	}
 }
 
-void get_some_put_signal(void){ // TO DO
-    
+void place_line_action(){
+    while(back_sensor_reading == 0)
+        line_following(motor_common_speed, 0, adjustment_power_decrement);
+    watch.start();
+    int etime = watch.read();
+    while(etime < 1000){ // some time tested later
+        line_following(motor_common_speed, 2, -adjustment_power_decrement)
+        etime = watch.read();
+    }
+    put();
 }
+
 
 void put(void){
     
 }
-/*
-void put_line_action(void){
-    get_some_put_signal();
-    get_state();
-    while (contact_switch == false){ // CAN BE SOME OTHER CONDITION
-        line_following(motor_common_speed, 1, adjustment_power_decrement);
-        //get_contact_switch();
-    }
-    put();
-}
-*/
 
 void TestIO(){
     //rlink.command(WRITE_PORT_0, 0);
@@ -631,9 +626,14 @@ int main ()
 					cout<<"start traverse"<<endl;
 					traverse();
 				}
-				else if (scan_mode == MODE_SCANNING)
-					pick_line_action();
-					
+                else if (scan_mode == MODE_SCANNING_A){
+					pick_line_action(item_picked_A);
+                    item_picked_A++;
+                }
+                else if (scan_mode == MODE_SCANNING_B){
+                    pick_line_action(item_picked_B);
+                    item_picked_B++;
+                }
                 rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
                 // TODO: pickup and place logic here
             }
