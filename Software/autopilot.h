@@ -27,6 +27,7 @@ using namespace std;
 #define TASK_DELIVER_D1 12
 #define TASK_DELIVER_D2 13
 #define TASK_GOBACK 14
+#define TASK_GOTO_D1 15
 
 list<int> task_list; // store tasks to be executed
 
@@ -47,6 +48,7 @@ list<int> operation_list; // stores operations to be executed
 #define MODE_NOT_SCANNING 0
 #define MODE_DELIVER_D1 3
 #define MODE_DELIVER_D2 4
+#define MODE_SPECIAL_TURN 5
 int scan_mode = MODE_NOT_SCANNING;
 
 
@@ -369,8 +371,14 @@ void InitNextTask(int task_id){
         case TASK_DELIVER_D2:
             scan_mode = MODE_DELIVER_D2;
             FindRoute(current_node, &A7);
+            break;
         case TASK_GOBACK:
             FindRoute(current_node, &F1);
+            break;
+        case TASK_GOTO_D1:
+			scan_mode = MODE_SPECIAL_TURN;
+            FindRoute(current_node, &D1);
+            break;
         default:
             break;
     }

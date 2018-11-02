@@ -11,16 +11,19 @@ using namespace std;
 #include <list>
 
 #define ROBOT_NUM 10   // The id number (see below)
-int motor_turning_speed = 75;
+int motor_turning_speed = 80;
 int adjustment_power_decrement = 5;
 int motor_common_speed = 127; //127 max
 int motor_passing_crosing_time = 300;
-int motor_pre_turing_time = 1600;
+int motor_pre_turing_time = 1200;
 int motor_middle_turing_time = 2700;
 int state = 0;
 int previous_state = 0;
 bool motor_stop_recover = false;
 int item_to_pick_1 = 5;
+int lorry1 = 0;
+int lorry2 = 0;
+int current_lorry = 1;
 
 int item_picked_A = 0;
 int item_picked_B = 0;
@@ -134,16 +137,23 @@ void MapInitialization(){
 void TaskInitialization(){
     //task initialization
     task_list.push_back(TASK_WAITING);
+    task_list.push_back(TASK_GOTO_D1);
+ 
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_DELIVER);
+    
     task_list.push_back(TASK_GOTO_E7);
     //task_list.push_back(TASK_SCAN_A);
     task_list.push_back(TASK_GOTO_E1);
     task_list.push_back(TASK_SCAN_B);
     task_list.push_back(TASK_DELIVER);
+    
     task_list.push_back(TASK_GOTO_E7);
     //task_list.push_back(TASK_SCAN_A);
     task_list.push_back(TASK_GOTO_E1);
     task_list.push_back(TASK_SCAN_B);
     task_list.push_back(TASK_DELIVER);
+    
     task_list.push_back(TASK_GOBACK);
     //task_list.push_back(TASK_GOTO_E7);
     //task_list.push_back(TASK_SCAN_A);
@@ -284,9 +294,9 @@ void reposition(int direction){ // 0 for left, 1 for right
 		get_wheel_reading();
 		if(back_sensor_reading == 1)
 			break;
-		if(front_left_sensor_reading == 1 && direction == 0)
+		if(middle_sensor_reading == 1 && direction == 0)
 			break;
-		else if (front_right_sensor_reading == 1 && direction == 1)
+		else if (middle_sensor_reading == 1 && direction == 1)
 			break;
 	}
 }
@@ -358,7 +368,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
     else{
         motor_turn(turning_speed, action_index);
         if (current_node -> name == "A1")
-			while (etime < motor_pre_turing_time + (action_index+1) * 1000)
+			while (etime < motor_pre_turing_time + (action_index+1) * 900)
 				etime = watch.read();
         else
 			while (etime < motor_pre_turing_time)
@@ -367,6 +377,7 @@ void crossing_action(int action_index, int turning_speed){ // 0: pass, -1: go le
 		get_wheel_reading();
 		while ((front_left_sensor_reading == 0 && action_index == 1) || (front_right_sensor_reading == 0 && action_index == -1))
 			get_wheel_reading();
+		
 		motor_control(motor_common_speed, motor_common_speed);
 		while (back_sensor_reading == 1)
 			get_wheel_reading();
@@ -436,21 +447,74 @@ void DetectObject(int num){
     rlink.command(WRITE_PORT_7, LedReading());
     cout<<"Object Recognition: finished."<<endl;
 }
-
+void special_turning(){
+	get_wheel_reading();
+	while (back_sensor_reading != 1){
+        line_following(motor_common_speed, 0, adjustment_power_decrement);
+	}
+	LedDisplayOperation(LED_TURNING, true);
+	rlink.command(WRITE_PORT_7, LedReading());
+	
+    watch.start();
+    int etime = watch.read();
+    motor_turn(motor_turning_speed, -1);
+	while (etime < motor_pre_turing_time)
+				etime = watch.read();
+	watch.stop();
+	get_wheel_reading();
+	while (middle_sensor_reading != 1){
+		get_wheel_reading();
+	}
+	hault();
+	watch.start();
+    etime = watch.read();
+    motor_turn(motor_turning_speed, -1);
+	while (etime < motor_pre_turing_time)
+				etime = watch.read();
+	watch.stop();
+	get_wheel_reading();
+	while (middle_sensor_reading != 1){
+		get_wheel_reading();
+	}
+	hault();
+	watch.start();
+    etime = watch.read();
+    motor_turn(motor_turning_speed, -1);
+	while (etime < motor_pre_turing_time)
+				etime = watch.read();
+	watch.stop();
+	get_wheel_reading();
+	while (middle_sensor_reading != 1){
+		get_wheel_reading();
+	}
+	motor_control(motor_common_speed, motor_common_speed);
+	while (back_sensor_reading == 1){
+		get_wheel_reading();
+	}
+	
+	cout<<"special turn complete"<<endl;
+	current_direction.direction = LEFT;
+	current_node = &C1;
+	previous_node = &D1;
+    LedDisplayOperation(LED_TURNING, false);
+	rlink.command(WRITE_PORT_7, LedReading());
+	
+}
 void pick_line_action(int item_picked){
     int crossings_passed = 0;
 	bool distance_sensor_activated = false;
 	clamp.OpenClamp();
+	bool finish_pickup = false;
 	int v = rlink.request(READ_PORT_0);
 	rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 	clamp.ExtendArm();
 	v = rlink.request(READ_PORT_0);
 	rlink.command(WRITE_PORT_0, clamp.GetReading(v));
-
+	delay(2000);
 	cout<<"picking the "<<(item_picked + 1)<<" item"<<endl;
     while (!operation_list.empty()){
 		get_wheel_reading();
-		if (clamp.clamp_status == CLAMP_OPEN){
+		if (clamp.clamp_status == CLAMP_OPEN && finish_pickup == false){
 			int distance_value = -1;
 			bool found = false;
 			if (distance_sensor_activated == true){
@@ -460,6 +524,18 @@ void pick_line_action(int item_picked){
 					cout<<"detect a junction, do it"<<endl;
 					found = true;
 				}
+				
+				if (crossings_passed == 1 && item_picked_B == 1){
+					watch.start();
+					int e_time = watch.read();
+					while (e_time < 2200){
+						line_following(motor_common_speed, 0, adjustment_power_decrement);
+						e_time = watch.read();
+					}
+					found = true;
+				}
+			    
+					
 				
 				distance_value = rlink.request(ADC2);
 				cout<<"distance: "<<distance_value<<endl;
@@ -476,6 +552,7 @@ void pick_line_action(int item_picked){
 					}
 				}
 				if (found){
+					watch.stop();
 					hault();
 					clamp.CloseClamp();
 					v = rlink.request(READ_PORT_0);
@@ -484,12 +561,14 @@ void pick_line_action(int item_picked){
 					clamp.ShrinkArm();
 					v = rlink.request(READ_PORT_0);
 					rlink.command(WRITE_PORT_0, clamp.GetReading(v));
-					delay(5000);
+					delay(3000);
 					if (scan_mode == MODE_SCANNING_A){
 						DetectObject(1);
 					}else{
 						DetectObject(2);
 					}
+					finish_pickup = true;
+					cout<<"distance sensor turned off.."<<endl;
 				}
 				
 			}
@@ -499,8 +578,12 @@ void pick_line_action(int item_picked){
         get_wheel_reading();
         line_following(motor_common_speed, 0, adjustment_power_decrement);
 		if (back_sensor_reading == 1){
+			cout<<"update node!"<<endl;
 			crossing_action(action_index, motor_turning_speed);
 			UpdateNode();
+			hault();
+			delay(1000);
+			
 			if (distance_sensor_activated == true){
 				if (scan_mode == MODE_SCANNING_A){
 					crossings_passed+=1;
@@ -508,7 +591,7 @@ void pick_line_action(int item_picked){
 					if (current_node->name != "C1" && current_node->name != "D1"){
 						crossings_passed+=2;
 					}
-					if (crossings_passed > item_picked){
+					if (crossings_passed > item_picked && finish_pickup == false){
 						cout<<"last junction, do it"<<endl;
 						hault();
 						clamp.CloseClamp();
@@ -518,29 +601,37 @@ void pick_line_action(int item_picked){
 						clamp.ShrinkArm();
 						v = rlink.request(READ_PORT_0);
 						rlink.command(WRITE_PORT_0, clamp.GetReading(v));
-						delay(5000);
+						delay(3000);
+						cout<<"Object Recognition at last junction"<<endl;
 						if (scan_mode == MODE_SCANNING_A){
 							DetectObject(1);
 						}else{
 							DetectObject(2);
 						}
+						finish_pickup = true;
 					}
 				}
 					
 			}
+			
 			cout<<"//////////////////"<<crossings_passed<<endl;
 		}
 		
         if (current_node->name == "E5" && distance_sensor_activated == false && scan_mode == MODE_SCANNING_A){
 			cout<<"distance sensor activated!"<<endl;
-			distance_sensor_activated = true;
+			if (clamp.clamp_status == CLAMP_OPEN){
+				distance_sensor_activated = true;
+			}
 			crossings_passed += 1;
 		}
 		if (current_node->name == "B1" && distance_sensor_activated == false && scan_mode == MODE_SCANNING_B){
 			cout<<"distance sensor activated!"<<endl;
-			distance_sensor_activated = true;
+			if (clamp.clamp_status == CLAMP_OPEN){
+				distance_sensor_activated = true;
+			}
 			crossings_passed += 1;
 		}
+		
 	}
 }
 void put(void){
@@ -568,7 +659,11 @@ void place_line_action(){
     hault();
     watch.start();
     int etime = watch.read();
-    int ref_time = 1000;
+    int ref_time = 1200;
+    if (current_lorry == 1 && lorry1 > 1)
+		ref_time -= 550;
+	else if (current_lorry == 2 && lorry2 > 1)
+		ref_time -= 550;
     
     while(etime < ref_time){ // some time tested later
         motor_control(motor_common_speed+128, motor_common_speed+128);
@@ -694,9 +789,12 @@ int main ()
         rlink.command(WRITE_PORT_0, clamp.GetReading(v));
 
         delay(3000);
+        
+		
         //TestArm();
-        int a;
-        cin>>a;
+        //int a;
+        //cin>>a;
+        
 		         //*/
         //TestPick();
         //TestIO();
@@ -718,26 +816,40 @@ int main ()
                         }
                     }else{
 						if (current_object->name == "red"){
+							lorry1 += 1;
+							current_lorry = 1;
 							InitNextTask(TASK_DELIVER_D1);
                             LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "transparent"){
+							lorry1 += 1;
+							current_lorry = 1;
 							InitNextTask(TASK_DELIVER_D1);
                             LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "white"){
+							lorry2 += 1;
+							current_lorry = 2;
 							InitNextTask(TASK_DELIVER_D2);
                             LedDisplayTask(LED_GOTO_D2);
 						}else if (current_object->name == "green"){
+							lorry2 += 1;
+							current_lorry = 2;
 							InitNextTask(TASK_DELIVER_D2);
                             LedDisplayTask(LED_GOTO_D2);
 						}else if (current_object->name == "wood"){
+							lorry1 += 1;
+							current_lorry = 1;
 							InitNextTask(TASK_DELIVER_D1);
                             LedDisplayTask(LED_GOTO_D1);
 						}else if (current_object->name == "unknown"){
-							InitNextTask(TASK_DELIVER_D1);
-                            LedDisplayTask(LED_GOTO_D1);
+							lorry2 += 1;
+							current_lorry = 2;
+							InitNextTask(TASK_DELIVER_D2);
+                            LedDisplayTask(LED_GOTO_D2);
 						}else{
-							InitNextTask(TASK_DELIVER_D1);
-                            LedDisplayTask(LED_GOTO_D1);
+							lorry2 += 1;
+							current_lorry = 2;
+							InitNextTask(TASK_DELIVER_D2);
+                            LedDisplayTask(LED_GOTO_D2);
 						}
                     }
                     // Task LED Display
@@ -767,6 +879,10 @@ int main ()
 				}
 				else if (scan_mode == MODE_DELIVER_D2){
 					place_line_action();
+				}
+				else if (scan_mode == MODE_SPECIAL_TURN){
+					traverse();
+					special_turning();
 				}
                 rlink.command(BOTH_MOTORS_GO_OPPOSITE, 0);
             }

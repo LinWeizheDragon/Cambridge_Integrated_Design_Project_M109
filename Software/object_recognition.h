@@ -41,7 +41,7 @@ Object* ObjectRecognition(list<int> params, int mean_distance, int stack_num){
 		int v = (*it);
 		cout<<v<<" ";
 		bool found=false;
-		if (v >= 30 && v<=50){
+		if (v >= 30 && v<=70){
 			// white or wood
 			if (stack_num == 1){
 				if (mean_distance>=155){
@@ -62,7 +62,7 @@ Object* ObjectRecognition(list<int> params, int mean_distance, int stack_num){
 			samples[&OBJECT_GREEN] +=1;
 			found = true;
 		}
-		if (v>=60 && v<=120){
+		if (v>=70 && v<=150){
 			//red or transparent
 			if (stack_num == 1){
 				if (mean_distance>=149){

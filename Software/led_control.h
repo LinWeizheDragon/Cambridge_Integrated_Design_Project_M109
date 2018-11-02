@@ -10,16 +10,16 @@ using namespace std;
  Task:
  bit 3-4:
  00: Going to scan C2, height 2
- 01: Going to scan C1, height 1
+ 11: Going to scan C1, height 1
  10: Going to lorry D1
- 11: Going to lorry D2
+ 01: Going to lorry D2
  bit 5-7
  Object:
- 000: red
- 001: white
- 010: green
- 011: wood
- 100: transparent
+ 001: red
+ 010: white
+ 011: green
+ 100: wood
+ 101: transparent
  **/
 
 // LED Definition
@@ -28,8 +28,8 @@ using namespace std;
 #define LED_RECOVERING 0x04
 
 #define LED_SCAN_C2 0x00
-#define LED_SCAN_C1 0x01
-#define LED_GOTO_D1 0x02
+#define LED_SCAN_C1 0x02
+#define LED_GOTO_D1 0x01
 #define LED_GOTO_D2 0x03
 
 #define LED_OBJECT_NONE 0x00
