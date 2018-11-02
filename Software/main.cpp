@@ -23,7 +23,7 @@ bool motor_stop_recover = false;
 int item_to_pick_1 = 5;
 
 int item_picked_A = 0;
-int item_picked_B = 2;
+int item_picked_B = 0;
 int item_placed_D1 = 0;
 int item_placed_D2 = 0;
 
@@ -134,12 +134,17 @@ void MapInitialization(){
 void TaskInitialization(){
     //task initialization
     task_list.push_back(TASK_WAITING);
-    //task_list.push_back(TASK_GOTO_E7);
+    task_list.push_back(TASK_GOTO_E7);
     //task_list.push_back(TASK_SCAN_A);
     task_list.push_back(TASK_GOTO_E1);
     task_list.push_back(TASK_SCAN_B);
-    //task_list.push_back(TASK_DELIVER);
-    
+    task_list.push_back(TASK_DELIVER);
+    task_list.push_back(TASK_GOTO_E7);
+    //task_list.push_back(TASK_SCAN_A);
+    task_list.push_back(TASK_GOTO_E1);
+    task_list.push_back(TASK_SCAN_B);
+    task_list.push_back(TASK_DELIVER);
+    task_list.push_back(TASK_GOBACK);
     //task_list.push_back(TASK_GOTO_E7);
     //task_list.push_back(TASK_SCAN_A);
     //task_list.push_back(TASK_GOTO_E1);
@@ -163,9 +168,9 @@ void TaskInitialization(){
     //operation_list.push_back(GO_STRAIGHT);//*/
     
     ///////////Settings here////////////////////
-    current_node = &E2;
-    previous_node = &E3;
-    current_direction.direction = DOWN;
+    current_node = &S2;
+    previous_node = &F1;
+    current_direction.direction = RIGHT;
     /*
     current_direction.direction = RIGHT;
     FindRoute(&S2, &E7);
