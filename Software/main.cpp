@@ -135,10 +135,14 @@ void MapInitialization(){
 }
 
 void TaskInitialization(){
+    lorry1 = 0;
+    lorry2 = 0;
+    item_picked_B = 0;
+    
     //task initialization
     task_list.push_back(TASK_WAITING);
+    
     task_list.push_back(TASK_GOTO_D1);
- 
     task_list.push_back(TASK_SCAN_B);
     task_list.push_back(TASK_DELIVER);
     

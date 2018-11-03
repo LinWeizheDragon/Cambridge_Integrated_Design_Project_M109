@@ -15,6 +15,7 @@ using namespace std;
  01: Going to lorry D2
  bit 5-7
  Object:
+ 000: unknown
  001: red
  010: white
  011: green
