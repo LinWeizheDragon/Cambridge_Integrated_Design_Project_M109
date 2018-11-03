@@ -794,10 +794,16 @@ int main ()
 
         delay(3000);
         
+        
+        while(true){
+			int a;
+			cin>>a;
+			DetectObject(a);
+		}
 		
         //TestArm();
-        //int a;
-        //cin>>a;
+        int a;
+        cin>>a;
         
 		         //*/
         //TestPick();
